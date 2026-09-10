@@ -1,0 +1,11 @@
+{
+  "name": "Get Your Goals by MS7",
+  "short_name": "MS7 Fitness",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#060911",
+  "theme_color": "#060911",
+  "description": "Fitness & Gym Tracker MS7 dengan workout, nutrisi, progres dan backup data.",
+  "lang": "id",
+  "icons": []
+}
