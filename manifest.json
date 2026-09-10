@@ -7,5 +7,17 @@
   "theme_color": "#060911",
   "description": "Fitness & Gym Tracker MS7 dengan workout, nutrisi, progres dan backup data.",
   "lang": "id",
-  "icons": []
+  "icons": [{
+    "src": "https://dcpmtwbyp7.ufs.sh/f/75hB4NpFqzBxsxEVn1JVo68GkjqyRveMzOXFPaTi5JHNKfwd",
+    "sizes": "192x192",
+    "type": "image/png",
+    "purpose": "any"
+  },
+  {
+    "src": "https://dcpmtwbyp7.ufs.sh/f/75hB4NpFqzBxs6WacPJVo68GkjqyRveMzOXFPaTi5JHNKfwd",
+    "sizes": "512x512",
+    "type": "image/png",
+    "purpose": "any"
+  }
+]
 }
