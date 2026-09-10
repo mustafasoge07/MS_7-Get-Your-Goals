@@ -994,6 +994,63 @@
             font-weight: 700;
         }
 
+        .manual-exercise-filters {
+            display:grid;
+            grid-template-columns:minmax(190px, .45fr) minmax(240px, 1fr);
+            gap:8px;
+            margin-top:8px;
+        }
+        .manual-exercise-filters select,
+        .manual-exercise-filters input {
+            width:100%;
+            min-width:0;
+        }
+        .manual-exercise-count {
+            margin-top:6px;
+            color:var(--text-muted);
+            font-size:.68rem;
+            font-weight:600;
+        }
+        .manual-exercise-picker {
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+            gap:7px;
+            max-height:310px;
+            overflow:auto;
+            margin-top:9px;
+            padding:10px;
+            background:rgba(6,9,17,.65);
+            border:1px solid var(--border-subtle);
+            border-radius:var(--radius-md);
+        }
+        .manual-exercise-option {
+            display:flex;
+            align-items:flex-start;
+            gap:8px;
+            padding:8px 9px;
+            border:1px solid transparent;
+            border-radius:8px;
+            cursor:pointer;
+            background:rgba(255,255,255,.02);
+        }
+        .manual-exercise-option:hover {
+            background:rgba(6,182,212,.07);
+            border-color:rgba(6,182,212,.22);
+        }
+        .manual-exercise-option input { margin-top:3px; flex:0 0 auto; }
+        .manual-exercise-option strong { font-size:.76rem; color:var(--text-main); display:block; line-height:1.3; }
+        .manual-exercise-option span { font-size:.65rem; color:var(--text-muted); display:block; margin-top:2px; }
+        .history-load-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:12px; }
+        .load-history-card { background:rgba(6,9,17,.62); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:13px; }
+        .load-history-row { display:flex; justify-content:space-between; gap:10px; font-size:.72rem; padding:5px 0; border-bottom:1px solid rgba(255,255,255,.05); }
+        .load-history-row:last-child { border-bottom:0; }
+        .load-history-muted { color:var(--text-muted); }
+        .food-library-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px; }
+        .food-card { background:rgba(6,9,17,.62); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:12px; }
+        .food-card h5 { font-size:.82rem; margin-bottom:4px; color:var(--text-main); }
+        .food-card .food-meta { font-size:.68rem; color:var(--text-muted); line-height:1.5; }
+        @media(max-width:768px){ .manual-exercise-picker{grid-template-columns:1fr;max-height:280px;} }
+
         /* === MODAL OVERLAYS === */
         .modal-overlay {
             position: fixed;
@@ -1404,8 +1461,22 @@
             }
 
             .music-widget {
-                display: none; /* Kept clean on small mobile */
+                display: block;
+                width: calc(100vw - 28px);
+                max-width: 420px;
+                right: 14px;
+                bottom: 84px;
+                padding: 12px;
+                z-index: 960;
             }
+            .music-widget.minimized {
+                width: auto;
+                max-width: calc(100vw - 28px);
+            }
+        }
+    
+        @media (max-width: 600px) {
+            .manual-exercise-filters { grid-template-columns:1fr; }
         }
     </style>
 </head>
@@ -1912,17 +1983,18 @@
                         </div>
 
                         <div id="manual-cats-box" class="form-group">
-                            <label>Pilih Kelompok Otot (Bisa >1):</label>
-                            <div class="checkbox-group" id="manual-sched-cat-cbs">
-                                <label class="checkbox-item"><input type="checkbox" value="chest"> Dada (Chest)</label>
-                                <label class="checkbox-item"><input type="checkbox" value="back"> Punggung (Back)</label>
-                                <label class="checkbox-item"><input type="checkbox" value="shoulders"> Bahu (Shoulders)</label>
-                                <label class="checkbox-item"><input type="checkbox" value="biceps"> Bisep (Biceps)</label>
-                                <label class="checkbox-item"><input type="checkbox" value="triceps"> Trisep (Triceps)</label>
-                                <label class="checkbox-item"><input type="checkbox" value="legs"> Kaki (Legs)</label>
-                                <label class="checkbox-item"><input type="checkbox" value="abs_core"> Perut & Core</label>
-                                <label class="checkbox-item"><input type="checkbox" value="recovery_mobility"> Mobilitas & Recovery</label>
+                            <label for="manual-exercise-search">Pilih Gerakan dari Database (bebas memilih & bisa banyak):</label>
+                            <div class="manual-exercise-filters">
+                                <select id="manual-exercise-type-filter" aria-label="Filter jenis latihan">
+                                    <option value="all">🏋️ Semua Jenis Latihan</option>
+                                </select>
+                                <input type="search" id="manual-exercise-search" placeholder="🔎 Cari gerakan, kategori, atau alat..." autocomplete="off">
                             </div>
+                            <div id="manual-exercise-picker" class="manual-exercise-picker"></div>
+                            <div id="manual-exercise-count" class="manual-exercise-count"></div>
+                            <small style="display:block;color:var(--text-muted);font-size:.7rem;margin-top:6px;">
+                                Semua gerakan diambil langsung dari database gerakan aplikasi. Pilihan tidak dibatasi 2 gerakan per kelompok otot.
+                            </small>
                         </div>
 
                         <button type="submit" class="btn-primary" style="margin-top:8px;">Simpan Jadwal Hari Ini</button>
@@ -1956,6 +2028,16 @@
                     <h4 style="font-size:0.92rem; font-weight:700; color:var(--cyan-bright); margin-bottom:10px;">🍽️ Rekomendasi Menu Harian Anda</h4>
                     <div id="nutrition-daily-meals-list" style="display:flex; flex-direction:column; gap:8px;">
                         <!-- Injected by JS -->
+                    </div>
+                    <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--border-subtle);">
+                        <div class="card-header" style="margin-bottom:10px;">
+                            <div>
+                                <h4 class="card-title" style="font-size:.95rem;">🍱 Pilihan Makanan & Minuman</h4>
+                                <p class="card-subtitle">Database pangan praktis dengan estimasi energi dan makro per porsi.</p>
+                            </div>
+                            <input type="search" id="nutrition-food-search" placeholder="Cari makanan/minuman..." style="max-width:220px;">
+                        </div>
+                        <div id="nutrition-food-library" class="food-library-grid"></div>
                     </div>
                 </div>
 
@@ -2088,6 +2170,18 @@
                                 <!-- Injected by JS -->
                             </tbody>
                         </table>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <h3 class="card-title">🏋️ Riwayat Beban per Gerakan</h3>
+                            <p class="card-subtitle">Beban aktual tiap set, beban terakhir, volume, dan PR tersimpan dari sesi yang selesai.</p>
+                        </div>
+                    </div>
+                    <div id="exercise-load-history" class="history-load-grid">
+                        <div style="padding:16px;color:var(--text-muted);">Belum ada riwayat beban. Selesaikan set dengan memasukkan beban aktual.</div>
                     </div>
                 </div>
 
@@ -4323,6 +4417,16 @@
             const reps = Math.round((activeWorkoutSession.repsMin + activeWorkoutSession.repsMax) / 2);
             activeWorkoutSession.currentWeightKg = weightKg;
             activeWorkoutSession.volumeLiftedKg += weightKg * reps;
+            activeWorkoutSession.setLogs = Array.isArray(activeWorkoutSession.setLogs) ? activeWorkoutSession.setLogs : [];
+            activeWorkoutSession.setLogs.push({
+                exerciseIndex: activeWorkoutSession.exerciseIndex,
+                exerciseName: exName,
+                set: activeWorkoutSession.setIndex,
+                weightKg,
+                reps,
+                date: getLocalDateKey(),
+                timestamp: new Date().toISOString()
+            });
 
             const pr = getExercisePR(exName);
             if (weightKg > pr && weightKg > 0) {
@@ -4452,7 +4556,18 @@
                 calories,
                 volumeKg: activeWorkoutSession.volumeLiftedKg,
                 averageLoadKg: activeWorkoutSession.currentWeightKg || 0,
-                exercisesCount: activeWorkoutSession.playlist.length
+                exercisesCount: activeWorkoutSession.playlist.length,
+                exerciseDetails: activeWorkoutSession.playlist.map((name, exerciseIndex) => {
+                    const sets = (activeWorkoutSession.setLogs || []).filter(x => x.exerciseIndex === exerciseIndex);
+                    return {
+                        name,
+                        sets,
+                        setsCompleted: sets.length,
+                        weightKg: sets.length ? sets[sets.length - 1].weightKg : 0,
+                        reps: sets.length ? sets[sets.length - 1].reps : 0,
+                        volumeKg: sets.reduce((sum, x) => sum + (Number(x.weightKg)||0) * (Number(x.reps)||0), 0)
+                    };
+                })
             });
             saveJSON(APP_KEYS.WORKOUT_HISTORY, history);
 
@@ -4681,6 +4796,199 @@
             showToast(`Paket ${PROGRAM_PRESETS[levelKey].title} berhasil diaktifkan!`, 'success');
         }
 
+
+        function getAllExercisesFromDB() {
+            const all = [];
+            Object.entries(EXERCISE_DATABASE || {}).forEach(([group, list]) => {
+                (list || []).forEach(ex => all.push({...ex, dbGroup: group}));
+            });
+            return all;
+        }
+
+        function getExerciseGroupLabel(group) {
+            const labels = {
+                chest:'Dada', back:'Punggung', shoulders:'Bahu', legs:'Kaki',
+                arms:'Lengan', biceps:'Biceps', triceps:'Triceps', core:'Core',
+                cardio:'Cardio', fullbody:'Full Body', recovery:'Recovery & Mobilitas'
+            };
+            return labels[group] || String(group).replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+        }
+
+        function populateManualExerciseTypeFilter() {
+            const select = document.getElementById('manual-exercise-type-filter');
+            if (!select) return;
+            const current = select.value || 'all';
+            const groups = [...new Set(getAllExercisesFromDB().map(ex => ex.dbGroup).filter(Boolean))];
+            select.innerHTML = '<option value="all">🏋️ Semua Jenis Latihan</option>' +
+                groups.map(group => `<option value="${escHtml(group)}">${escHtml(getExerciseGroupLabel(group))}</option>`).join('');
+            select.value = groups.includes(current) ? current : 'all';
+        }
+
+        function renderManualExercisePicker(selectedNames = []) {
+            const box = document.getElementById('manual-exercise-picker');
+            if (!box) return;
+            populateManualExerciseTypeFilter();
+            const search = (document.getElementById('manual-exercise-search')?.value || '').trim().toLowerCase();
+            const typeFilter = document.getElementById('manual-exercise-type-filter')?.value || 'all';
+            const allExercises = getAllExercisesFromDB();
+            const all = allExercises.filter(ex => {
+                const matchesType = typeFilter === 'all' || ex.dbGroup === typeFilter;
+                const matchesSearch = !search || `${ex.name} ${ex.category} ${ex.equipment} ${ex.level}`.toLowerCase().includes(search);
+                return matchesType && matchesSearch;
+            });
+            box.innerHTML = all.map((ex, idx) => {
+                const checked = selectedNames.includes(ex.name) ? 'checked' : '';
+                return `<label class="manual-exercise-option">
+                    <input type="checkbox" class="manual-exercise-cb" value="${escHtml(ex.name)}" ${checked}>
+                    <span><strong>${escHtml(ex.name)}</strong><span>${escHtml(ex.category || ex.dbGroup)} • ${escHtml(ex.equipment || '-')} • ${escHtml(ex.level || '-')}</span></span>
+                </label>`;
+            }).join('') || `<div style="padding:12px;color:var(--text-muted);font-size:.75rem;">Gerakan tidak ditemukan.</div>`;
+            const countBox = document.getElementById('manual-exercise-count');
+            if (countBox) {
+                const selectedVisible = all.filter(ex => selectedNames.includes(ex.name)).length;
+                countBox.textContent = `${all.length} gerakan ditampilkan${selectedVisible ? ` • ${selectedVisible} pilihan tersimpan di filter ini` : ''}`;
+            }
+        }
+
+        function escHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        }
+
+        function getSelectedManualExercises() {
+            return Array.from(document.querySelectorAll('.manual-exercise-cb:checked')).map(cb => cb.value);
+        }
+
+        function renderExerciseLoadHistory() {
+            const box = document.getElementById('exercise-load-history');
+            if (!box) return;
+            const history = loadJSON(APP_KEYS.WORKOUT_HISTORY, []);
+            const byExercise = {};
+            history.forEach(session => {
+                (session.exerciseDetails || []).forEach(detail => {
+                    const name = detail.name || 'Gerakan';
+                    if (!byExercise[name]) byExercise[name] = [];
+                    const sets = Array.isArray(detail.sets) ? detail.sets : [];
+                    if (sets.length) {
+                        sets.forEach(st => byExercise[name].push({
+                            date: session.date, set: st.set || 1, weightKg: Number(st.weightKg) || 0,
+                            reps: Number(st.reps) || 0, volume: Number(st.weightKg || 0) * Number(st.reps || 0)
+                        }));
+                    } else {
+                        byExercise[name].push({
+                            date: session.date, set: 1, weightKg: Number(detail.weightKg) || 0,
+                            reps: Number(detail.reps) || 0, volume: Number(detail.weightKg || 0) * Number(detail.reps || 0)
+                        });
+                    }
+                });
+            });
+            const names = Object.keys(byExercise);
+            if (!names.length) {
+                box.innerHTML = `<div style="padding:16px;color:var(--text-muted);">Belum ada riwayat beban. Selesaikan set dengan memasukkan beban aktual.</div>`;
+                return;
+            }
+            names.sort();
+            box.innerHTML = names.map(name => {
+                const rows = byExercise[name].slice(-8).reverse();
+                const pr = Math.max(0, ...byExercise[name].map(x => x.weightKg));
+                const last = byExercise[name][byExercise[name].length - 1];
+                return `<div class="load-history-card">
+                    <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start;">
+                        <strong style="font-size:.84rem;color:var(--text-main);">${escHtml(name)}</strong>
+                        <span class="pill-badge" style="font-size:.66rem;padding:3px 7px;color:var(--amber-fire);">PR ${pr} kg</span>
+                    </div>
+                    <div class="load-history-row"><span class="load-history-muted">Terakhir</span><strong>${last.weightKg} kg × ${last.reps || '-'} • ${last.date}</strong></div>
+                    <div style="margin-top:7px;font-size:.68rem;color:var(--cyan-bright);font-weight:700;">RIWAYAT SET</div>
+                    ${rows.map(x => `<div class="load-history-row"><span>${x.date} • Set ${x.set}</span><span><strong>${x.weightKg} kg</strong>${x.reps ? ` × ${x.reps}` : ''}</span></div>`).join('')}
+                </div>`;
+            }).join('');
+        }
+
+        const NUTRITION_FOOD_DATABASE = [
+            {name:'Nasi putih',type:'Karbohidrat',portion:'150 g matang',kcal:195,p:4,c:43,f:0.5,info:'Sumber karbohidrat praktis; mudah dinaikkan porsinya saat bulking.'},
+            {name:'Nasi merah',type:'Karbohidrat',portion:'150 g matang',kcal:165,p:3.5,c:34,f:1.3,info:'Karbohidrat dengan serat lebih tinggi.'},
+            {name:'Oatmeal',type:'Karbohidrat',portion:'60 g kering',kcal:225,p:8,c:40,f:4,info:'Cocok untuk sarapan dan tambahan kalori bertahap.'},
+            {name:'Kentang rebus',type:'Karbohidrat',portion:'200 g',kcal:170,p:4,c:39,f:0.2,info:'Mengenyangkan dan fleksibel sebagai sumber karbohidrat.'},
+            {name:'Ubi jalar',type:'Karbohidrat',portion:'200 g',kcal:180,p:3,c:41,f:0.3,info:'Alternatif nasi dengan rasa manis alami.'},
+            {name:'Roti gandum',type:'Karbohidrat',portion:'2 lembar',kcal:160,p:7,c:28,f:2.5,info:'Praktis untuk sarapan atau snack.'},
+            {name:'Telur ayam',type:'Protein',portion:'2 butir',kcal:140,p:12,c:1,f:10,info:'Protein lengkap dan sumber kolin; mudah dimasak.'},
+            {name:'Dada ayam',type:'Protein',portion:'100 g matang',kcal:165,p:31,c:0,f:3.6,info:'Protein tinggi dengan lemak relatif rendah.'},
+            {name:'Paha ayam tanpa kulit',type:'Protein',portion:'100 g matang',kcal:180,p:26,c:0,f:8,info:'Lebih juicy; cocok untuk menu harian.'},
+            {name:'Ikan kembung',type:'Protein/Omega-3',portion:'100 g',kcal:205,p:22,c:0,f:13,info:'Protein dan lemak ikan, termasuk omega-3.'},
+            {name:'Ikan tongkol',type:'Protein',portion:'100 g',kcal:140,p:29,c:0,f:2,info:'Pilihan protein laut yang praktis.'},
+            {name:'Ikan tuna',type:'Protein',portion:'100 g',kcal:132,p:29,c:0,f:1,info:'Protein tinggi dan rendah lemak.'},
+            {name:'Udang',type:'Protein',portion:'100 g matang',kcal:100,p:24,c:0.2,f:0.8,info:'Protein tinggi dengan kalori relatif rendah.'},
+            {name:'Tempe',type:'Protein nabati',portion:'100 g',kcal:195,p:19,c:8,f:11,info:'Protein nabati, serat dan mikronutrien.'},
+            {name:'Tahu',type:'Protein nabati',portion:'100 g',kcal:80,p:8,c:2,f:5,info:'Pilihan ekonomis dan mudah dipadukan dengan lauk.'},
+            {name:'Susu UHT rendah lemak',type:'Minuman',portion:'250 ml',kcal:115,p:8,c:12,f:3,info:'Menambah protein dan cairan tanpa porsi makanan besar.'},
+            {name:'Susu UHT full cream',type:'Minuman',portion:'250 ml',kcal:150,p:8,c:12,f:8,info:'Lebih padat energi, berguna saat bulking.'},
+            {name:'Yogurt plain',type:'Minuman/Snack',portion:'150 g',kcal:95,p:6,c:8,f:4,info:'Bisa dipadukan buah atau oat.'},
+            {name:'Pisang',type:'Buah',portion:'1 buah sedang',kcal:105,p:1.3,c:27,f:0.3,info:'Karbohidrat praktis sebelum atau sesudah latihan.'},
+            {name:'Apel',type:'Buah',portion:'1 buah sedang',kcal:95,p:0.5,c:25,f:0.3,info:'Buah praktis dengan serat.'},
+            {name:'Pepaya',type:'Buah',portion:'200 g',kcal:86,p:1,c:22,f:0.5,info:'Buah rendah energi dan kaya vitamin.'},
+            {name:'Alpukat',type:'Lemak sehat',portion:'100 g',kcal:160,p:2,c:9,f:15,info:'Sumber lemak tak jenuh; padat energi.'},
+            {name:'Kacang tanah',type:'Lemak/Protein',portion:'30 g',kcal:170,p:7,c:5,f:14,info:'Padat energi; perhatikan porsi saat fat loss.'},
+            {name:'Selai kacang',type:'Lemak/Protein',portion:'30 g',kcal:180,p:7,c:6,f:15,info:'Cara mudah menambah kalori saat bulking.'},
+            {name:'Kacang almond',type:'Lemak/Protein',portion:'30 g',kcal:174,p:6,c:6,f:15,info:'Lemak sehat dan protein pendamping.'},
+            {name:'Edamame',type:'Protein nabati',portion:'100 g',kcal:121,p:12,c:9,f:5,info:'Protein nabati dan serat.'},
+            {name:'Kacang hijau matang',type:'Karbohidrat/Protein',portion:'150 g',kcal:160,p:11,c:29,f:0.6,info:'Karbohidrat dan protein nabati; batasi gula tambahan.'},
+            {name:'Jagung rebus',type:'Karbohidrat',portion:'150 g',kcal:145,p:5,c:31,f:2,info:'Alternatif sumber karbohidrat.'},
+            {name:'Sayur bayam',type:'Sayuran',portion:'100 g matang',kcal:35,p:3,c:5,f:0.5,info:'Rendah kalori, kaya mikronutrien.'},
+            {name:'Brokoli',type:'Sayuran',portion:'150 g',kcal:50,p:4,c:10,f:0.6,info:'Serat dan mikronutrien; cocok untuk volume makanan.'},
+            {name:'Wortel',type:'Sayuran',portion:'100 g',kcal:41,p:1,c:10,f:0.2,info:'Sayuran praktis untuk tambahan serat.'},
+            {name:'Air putih',type:'Minuman',portion:'500 ml',kcal:0,p:0,c:0,f:0,info:'Prioritas hidrasi; tidak menambah kalori.'},
+            {name:'Kopi hitam tanpa gula',type:'Minuman',portion:'240 ml',kcal:3,p:0.3,c:0,f:0,info:'Kalori sangat rendah; batasi gula/sirup tambahan.'},
+            {name:'Teh tanpa gula',type:'Minuman',portion:'250 ml',kcal:2,p:0,c:0.5,f:0,info:'Minuman rendah kalori tanpa gula tambahan.'},
+            {name:'Jus jeruk tanpa gula',type:'Minuman',portion:'250 ml',kcal:110,p:2,c:25,f:0.3,info:'Lebih mudah diminum dalam jumlah besar; tetap perhatikan total kalori.'}
+        ];
+
+        function renderNutritionFoodLibrary() {
+            const box = document.getElementById('nutrition-food-library');
+            if (!box) return;
+            const q = (document.getElementById('nutrition-food-search')?.value || '').toLowerCase().trim();
+            const foods = NUTRITION_FOOD_DATABASE.filter(f => `${f.name} ${f.type} ${f.info}`.toLowerCase().includes(q));
+            box.innerHTML = foods.map(f => `<div class="food-card">
+                <h5>${escHtml(f.name)}</h5>
+                <div class="food-meta"><strong>${escHtml(f.type)}</strong> • ${escHtml(f.portion)}</div>
+                <div style="margin-top:6px;font-size:.72rem;color:var(--cyan-bright);">${f.kcal} kcal • P ${f.p}g • C ${f.c}g • F ${f.f}g</div>
+                <div class="food-meta" style="margin-top:5px;">${escHtml(f.info)}</div>
+            </div>`).join('') || `<div style="padding:14px;color:var(--text-muted);">Makanan/minuman tidak ditemukan.</div>`;
+        }
+
+        function buildGoalMenu(bio, targets) {
+            const goal = bio.goal || 'Maintenance';
+            const foods = NUTRITION_FOOD_DATABASE;
+            const proteinFoods = foods.filter(f => ['Protein','Protein/Omega-3','Protein nabati','Lemak/Protein'].includes(f.type));
+            const carbFoods = foods.filter(f => ['Karbohidrat','Karbohidrat/Protein'].includes(f.type));
+            const fruitFoods = foods.filter(f => f.type === 'Buah');
+            const vegFoods = foods.filter(f => f.type === 'Sayuran');
+            const liquidFoods = foods.filter(f => f.type === 'Minuman' || f.type === 'Minuman/Snack');
+            const picks = goal === 'Bulking'
+                ? [
+                    ['07:00','Oatmeal + susu full cream + pisang + 2 telur'],
+                    ['10:30','Roti gandum + selai kacang + yogurt plain'],
+                    ['13:00','Nasi putih + dada ayam + tempe + brokoli'],
+                    ['16:30','Susu full cream + pisang + kacang tanah'],
+                    ['19:30','Nasi + ikan kembung + tahu + bayam'],
+                    ['21:30','Yogurt plain + buah + sedikit almond']
+                  ]
+                : goal === 'Fat Loss'
+                ? [
+                    ['07:00','Oatmeal + 2 telur + pepaya'],
+                    ['10:30','Apel + yogurt plain'],
+                    ['13:00','Nasi merah + dada ayam + brokoli + bayam'],
+                    ['16:30','Pisang kecil + teh tanpa gula'],
+                    ['19:30','Kentang + ikan tuna/tongkol + banyak sayur'],
+                    ['21:00','Tahu + sayur atau yogurt plain bila masih lapar']
+                  ]
+                : [
+                    ['07:00','Oatmeal + telur + pisang'],
+                    ['10:30','Apel + yogurt plain'],
+                    ['13:00','Nasi + ayam/ikan + tempe + sayur'],
+                    ['16:30','Roti gandum + selai kacang secukupnya'],
+                    ['19:30','Nasi merah/kentang + ikan + tahu + sayur']
+                  ];
+            return picks.map(([time, menu]) => ({time, menu}));
+        }
         function renderSchedule(bio) {
             const grid = document.getElementById('weekly-schedule-grid');
             if (!grid) return;
@@ -4690,6 +4998,10 @@
             const currentDayToday = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"][new Date().getDay()];
             const program = PROGRAM_PRESETS[bio?.level || 'Beginner'] || PROGRAM_PRESETS.Beginner;
             const customSched = loadJSON(APP_KEYS.CUSTOM_SCHED, {});
+
+            const pickerDay = document.getElementById('select-sched-day')?.value || dayNames[0];
+            const pickerPlan = customSched[pickerDay] || program.days[pickerDay] || {ex:[]};
+            renderManualExercisePicker(Array.isArray(pickerPlan.ex) ? pickerPlan.ex : []);
 
             dayNames.forEach(day => {
                 const isToday = day === currentDayToday;
@@ -4898,31 +5210,20 @@
                 `;
             }
 
-            // Daily Meals Recommendation
+            // Goal-adaptive daily menu recommendations
             const mealsBox = document.getElementById('nutrition-daily-meals-list');
             if (mealsBox) {
-                const sampleMenus = bio.goal === 'Bulking' ? [
-                    { time: "07:00 - Sarapan", menu: "Oatmeal 80g + 3 Telur Rebus Utuh + 1 Pisang Cavendish", macro: "520 kcal • 28g Protein" },
-                    { time: "10:30 - Snack", menu: "Roti Gandum 2 Lembar + 2 Sendok Makan Selai Kacang", macro: "310 kcal • 12g Protein" },
-                    { time: "13:00 - Makan Siang", menu: "Nasi Putih 200g + Dada Ayam Panggang 150g + Tempe Bacem", macro: "680 kcal • 48g Protein" },
-                    { time: "19:30 - Makan Malam", menu: "Nasi 150g + Ikan Kembung Bakar 150g + Tumis Bayam Bawang Putih", macro: "540 kcal • 36g Protein" }
-                ] : [
-                    { time: "07:00 - Sarapan", menu: "3 Putih Telur + 1 Telur Utuh Omelet + 1 Iris Roti Gandum + Kopi Hitam", macro: "260 kcal • 24g Protein" },
-                    { time: "10:30 - Snack", menu: "Apel Fuji 1 Buah / Segenggam Kacang Almond", macro: "110 kcal • 3g Protein" },
-                    { time: "13:00 - Makan Siang", menu: "Nasi Merah 120g + Dada Ayam Rebus/Kukus 150g + Sup Brokoli Jamur", macro: "420 kcal • 42g Protein" },
-                    { time: "19:30 - Makan Malam", menu: "Tahu & Tempe Kukus + Dada Ayam 120g + Sayur Buncis Tumis Air", macro: "380 kcal • 38g Protein" }
-                ];
-
-                mealsBox.innerHTML = sampleMenus.map(m => `
-                    <div style="background:rgba(6, 9, 17, 0.6); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); padding:10px 14px;">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <strong style="color:var(--cyan-bright); font-size:0.78rem;">${m.time}</strong>
-                            <span style="font-size:0.7rem; color:var(--lime-neon); font-weight:700;">${m.macro}</span>
+                const menus = buildGoalMenu(bio, targets);
+                mealsBox.innerHTML = menus.map(m => `
+                    <div style="background:rgba(6,9,17,.6);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:10px 14px;">
+                        <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;">
+                            <strong style="color:var(--cyan-bright);font-size:.78rem;">${m.time}</strong>
+                            <span style="font-size:.68rem;color:var(--lime-neon);font-weight:700;">Disesuaikan untuk ${escHtml(bio.goal || 'Maintenance')}</span>
                         </div>
-                        <p style="font-size:0.83rem; font-weight:600; margin-top:2px;">${m.menu}</p>
-                    </div>
-                `).join('');
+                        <p style="font-size:.83rem;font-weight:600;margin-top:3px;">${escHtml(m.menu)}</p>
+                    </div>`).join('');
             }
+            renderNutritionFoodLibrary();
 
             // Budget Protein List
             const budgetBox = document.getElementById('budget-protein-list');
@@ -5003,6 +5304,9 @@
                     });
                 }
             }
+
+            // Exercise load history
+            renderExerciseLoadHistory();
 
             // Charts
             renderWeightTrajectoryChart(bio, weeklyLogs);
@@ -5340,24 +5644,22 @@
                     e.preventDefault();
                     const day = document.getElementById('select-sched-day').value;
                     const type = document.getElementById('select-day-type').value;
-                    const checkedCats = Array.from(document.querySelectorAll('#manual-sched-cat-cbs input:checked')).map(cb => cb.value);
+                    const selectedExercises = getSelectedManualExercises();
 
                     let custom = loadJSON(APP_KEYS.CUSTOM_SCHED, {});
                     if (type === 'rest') {
                         custom[day] = { focus: "Rest Day Penuh", ex: [] };
                     } else if (type === 'recovery') {
-                        custom[day] = { focus: "Pemulihan & Mobilitas", ex: ["World Greatest Stretch", "Cat-Cow Stretch"] };
+                        const recoveryDefaults = ['World Greatest Stretch', 'Cat-Cow Stretch'].filter(n => !!findExerciseInDB(n));
+                        custom[day] = { focus: "Pemulihan & Mobilitas", ex: selectedExercises.length ? selectedExercises : recoveryDefaults };
                     } else {
-                        // Gather exercises from checked categories
-                        let exList = [];
-                        checkedCats.forEach(cat => {
-                            if (EXERCISE_DATABASE[cat]) {
-                                exList.push(...EXERCISE_DATABASE[cat].slice(0, 2).map(e => e.name));
-                            }
-                        });
+                        if (!selectedExercises.length) {
+                            showToast('Pilih minimal 1 gerakan dari database.', 'warning');
+                            return;
+                        }
                         custom[day] = {
-                            focus: checkedCats.length ? `Latihan (${checkedCats.join(', ')})` : "Latihan Kustom",
-                            ex: exList.length ? exList : ["Incline Dumbbell Press", "Push-Up Standar"]
+                            focus: `Latihan Kustom • ${selectedExercises.length} Gerakan`,
+                            ex: selectedExercises
                         };
                     }
 
@@ -5367,6 +5669,23 @@
                 });
             }
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const search = document.getElementById('manual-exercise-search');
+            if (search) search.addEventListener('input', () => renderManualExercisePicker(getSelectedManualExercises()));
+            const typeFilter = document.getElementById('manual-exercise-type-filter');
+            if (typeFilter) typeFilter.addEventListener('change', () => renderManualExercisePicker(getSelectedManualExercises()));
+            const daySelect = document.getElementById('select-sched-day');
+            if (daySelect) daySelect.addEventListener('change', () => {
+                const custom = loadJSON(APP_KEYS.CUSTOM_SCHED, {});
+                const bio = loadJSON(APP_KEYS.BIO, {});
+                const program = PROGRAM_PRESETS[bio?.level || 'Beginner'] || PROGRAM_PRESETS.Beginner;
+                const plan = custom[daySelect.value] || program.days[daySelect.value] || {ex:[]};
+                renderManualExercisePicker(plan.ex || []);
+            });
+            const foodSearch = document.getElementById('nutrition-food-search');
+            if (foodSearch) foodSearch.addEventListener('input', renderNutritionFoodLibrary);
+        });
 
         function renderProfile(bio) {
             if (!bio) return;
@@ -5402,17 +5721,18 @@
         const audioEl = document.getElementById('audio-el');
 
         function loadAudioTrack(idx) {
-            if (!MUSIC_TRACKS.length) return;
+            if (!audioEl || !MUSIC_TRACKS.length) return;
             currentTrackIdx = (idx + MUSIC_TRACKS.length) % MUSIC_TRACKS.length;
             const track = MUSIC_TRACKS[currentTrackIdx];
+            audioEl.pause();
             audioEl.src = track.src;
+            audioEl.load();
             document.getElementById('music-track-name').textContent = track.title;
         }
 
         function toggleAudioPlay() {
-            if (!audioEl.src || audioEl.src === "") {
-                loadAudioTrack(0);
-            }
+            if (!audioEl) return;
+            if (!audioEl.src || audioEl.src === window.location.href) loadAudioTrack(0);
 
             const playBtn = document.getElementById('btn-audio-play');
             if (isAudioPlaying) {
@@ -5420,13 +5740,18 @@
                 isAudioPlaying = false;
                 if (playBtn) playBtn.textContent = '▶';
             } else {
-                audioEl.play().then(() => {
-                    isAudioPlaying = true;
-                    if (playBtn) playBtn.textContent = '⏸';
-                }).catch(err => {
-                    console.warn('Audio play prevented:', err);
-                    showToast('Klik Play kembali untuk memulai lagu', 'info');
-                });
+                const p = audioEl.play();
+                if (p && typeof p.then === 'function') {
+                    p.then(() => {
+                        isAudioPlaying = true;
+                        if (playBtn) playBtn.textContent = '⏸';
+                    }).catch(err => {
+                        isAudioPlaying = false;
+                        if (playBtn) playBtn.textContent = '▶';
+                        console.warn('Audio play failed:', err);
+                        showToast('Audio gagal diputar. Coba Play lagi atau cek koneksi internet.', 'warning');
+                    });
+                }
             }
         }
 
@@ -5450,9 +5775,23 @@
         }
 
         if (audioEl) {
-            audioEl.addEventListener('ended', () => {
-                playNextTrack();
+            audioEl.volume = 0.7;
+            audioEl.addEventListener('ended', () => playNextTrack());
+            audioEl.addEventListener('play', () => {
+                isAudioPlaying = true;
+                const btn = document.getElementById('btn-audio-play');
+                if (btn) btn.textContent = '⏸';
             });
+            audioEl.addEventListener('pause', () => {
+                isAudioPlaying = false;
+                const btn = document.getElementById('btn-audio-play');
+                if (btn) btn.textContent = '▶';
+            });
+            audioEl.addEventListener('error', () => {
+                isAudioPlaying = false;
+                showToast('File musik tidak dapat dimuat dari sumber saat ini.', 'warning');
+            });
+            loadAudioTrack(0);
         }
 
         /* ==========================================================================
