@@ -4,6 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#060911">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="manifest.json">
     <title>Get Your Goals by MS7 - Fitness & Gym Tracker</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1375,44 +1379,30 @@
             bottom: 0;
             left: 0;
             width: 100vw;
-            max-width: 100vw;
             background: rgba(11, 17, 32, 0.95);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-top: 1px solid var(--border-subtle);
-            padding: 7px 8px calc(7px + env(safe-area-inset-bottom));
+            padding: 8px 12px;
             z-index: 950;
-            justify-content: flex-start;
-            align-items: stretch;
-            gap: 4px;
-            overflow-x: auto;
-            overflow-y: hidden;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
-        }
-        .mobile-bottom-nav::-webkit-scrollbar {
-            display: none;
+            justify-content: space-around;
+            align-items: center;
         }
 
         .mobile-nav-item {
             display: flex;
-            flex: 0 0 72px;
-            min-width: 72px;
-            min-height: 54px;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            gap: 3px;
+            gap: 4px;
             background: transparent;
             border: none;
             color: var(--text-muted);
-            font-size: 0.62rem;
+            font-size: 0.68rem;
             font-weight: 600;
             cursor: pointer;
-            padding: 4px 5px;
+            padding: 4px 8px;
             border-radius: var(--radius-sm);
             transition: var(--transition-smooth);
-            white-space: nowrap;
         }
 
         .mobile-nav-item span.icon {
@@ -1456,25 +1446,6 @@
 
             .main-content {
                 padding: 18px 14px;
-                width: 100%;
-                max-width: 100%;
-                min-width: 0;
-            }
-
-            .main-content > * {
-                min-width: 0;
-            }
-
-            .tab-content,
-            .tab-content > .grid-2-col,
-            .tab-content > .grid-3-col {
-                width: 100%;
-                min-width: 0;
-            }
-
-            #nutrition .card {
-                min-width: 0;
-                width: 100%;
             }
 
             .top-header {
@@ -1607,32 +1578,72 @@
         }
 
         @media (max-width: 600px) {
-            #nutrition .card-header {
-                align-items: flex-start;
-            }
-            #nutrition .card-header > div {
-                min-width: 0;
-            }
-            #nutrition #nutrition-food-search {
-                max-width: 100% !important;
-                width: 100% !important;
-                margin-top: 4px;
-            }
-            #nutrition .calorie-gauge-card {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
-            #nutrition .calorie-gauge-card > div:last-child {
-                text-align: left !important;
-            }
-
             .manual-exercise-filters { grid-template-columns:1fr; }
             .manual-muscle-focus { gap:6px; }
             .manual-group-chip { flex:1 1 calc(50% - 6px); justify-content:flex-start; }
             .nutrition-responsive-table { min-width:580px; }
             .nutrition-macro-table th,
             .nutrition-macro-table td { padding:8px 6px; font-size:.7rem; }
+        }
+
+        /* === MS7 UPGRADE PACK === */
+        :root{
+            --accent-primary:var(--cyan-glow);
+            --accent-secondary:var(--cyan-bright);
+        }
+        .fluid-title{font-size:clamp(1.05rem,2.5vw,1.65rem);}
+        .fluid-number{font-size:clamp(1.25rem,4vw,2rem);}
+        .music-track-select{
+            width:100%; margin:0 0 10px; padding:9px 11px; border-radius:9px;
+            background:var(--bg-input); color:var(--text-main); border:1px solid var(--border-subtle);
+        }
+        .feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;}
+        .mini-panel{background:rgba(6,9,17,.55);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:14px;}
+        .rest-progress{height:8px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden;margin:10px 0 0;}
+        .rest-progress > div{height:100%;width:100%;background:var(--gradient-lime);transition:width .9s linear;}
+        .rest-time-big{font-family:'JetBrains Mono',monospace;font-size:clamp(1.6rem,6vw,2.6rem);font-weight:800;color:var(--lime-bright);}
+        .food-log-list{display:flex;flex-direction:column;gap:8px;margin-top:12px;}
+        .food-log-row{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:10px;border:1px solid var(--border-subtle);border-radius:10px;background:rgba(6,9,17,.5);}
+        .food-log-row small{color:var(--text-muted);}
+        .macro-pills{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;}
+        .macro-pill{padding:5px 9px;border-radius:999px;background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.2);font-size:.7rem;font-weight:700;}
+        .theme-swatch{width:34px;height:34px;border-radius:10px;border:2px solid transparent;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:.75rem;}
+        .theme-swatch.active{border-color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.18);}
+        .one-rm-result{font-family:'JetBrains Mono',monospace;font-size:clamp(1.6rem,5vw,2.4rem);font-weight:800;color:var(--cyan-bright);}
+        .one-rm-bar{height:7px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:9px;}
+        .one-rm-bar > div{height:100%;width:0;background:var(--gradient-brand);transition:width .3s ease;}
+        .pwa-install-hint{padding:11px 13px;border-radius:10px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.22);font-size:.74rem;color:#a7f3d0;}
+        @media(max-width:600px){
+            .main-content{padding:clamp(12px,4vw,18px) clamp(10px,3.5vw,14px);}
+            .card{padding:clamp(14px,4vw,18px);}
+            .stat-card{padding:clamp(14px,4vw,20px);}
+            .stat-val{font-size:clamp(1.2rem,6vw,1.65rem);}
+            .pill-badge{max-width:100%;font-size:.72rem;padding:6px 9px;}
+            .music-widget{bottom:78px;right:10px;width:calc(100vw - 20px);max-width:none;}
+            .food-log-row{grid-template-columns:1fr auto;}.food-log-row .food-delete{grid-column:2;}
+        }
+        @media(max-width:380px){
+            .mobile-nav-item{font-size:.6rem;padding:4px 4px;}
+            .mobile-nav-item span.icon{font-size:1.05rem;}
+            .hub-footer{font-size:.62rem;}
+            .card-title{font-size:.98rem;}
+            .btn-primary,.btn-secondary,.btn-success{font-size:.78rem;padding:10px 12px;}
+            .quick-water-btns{display:grid;grid-template-columns:1fr 1fr;}
+        }
+        [data-theme="lime"]{
+            --cyan-glow:#10b981;--cyan-bright:#34d399;--cyan-deep:#059669;
+            --gradient-brand:linear-gradient(135deg,#10b981 0%,#22c55e 50%,#06b6d4 100%);
+            --gradient-accent:linear-gradient(135deg,#10b981,#06b6d4);
+        }
+        [data-theme="blue"]{
+            --cyan-glow:#3b82f6;--cyan-bright:#60a5fa;--cyan-deep:#2563eb;
+            --gradient-brand:linear-gradient(135deg,#3b82f6 0%,#06b6d4 55%,#6366f1 100%);
+            --gradient-accent:linear-gradient(135deg,#2563eb,#06b6d4);
+        }
+        [data-theme="crimson"]{
+            --cyan-glow:#ef4444;--cyan-bright:#fb7185;--cyan-deep:#dc2626;
+            --gradient-brand:linear-gradient(135deg,#ef4444 0%,#f43f5e 55%,#a855f7 100%);
+            --gradient-accent:linear-gradient(135deg,#dc2626,#f43f5e);
         }
     </style>
 </head>
@@ -1762,11 +1773,7 @@
         <button type="button" class="mobile-nav-item" data-tab="database">
             <span class="icon">📚</span>
             <span>Gerakan</span>
-        </button>        <button type="button" class="mobile-nav-item" data-tab="nutrition">
-            <span class="icon">🥗</span>
-            <span>Nutrisi</span>
         </button>
-
         <button type="button" class="mobile-nav-item" data-tab="progress">
             <span class="icon">📊</span>
             <span>Grafik</span>
@@ -1902,7 +1909,7 @@
                         <div class="form-group-inline">
                             <div>
                                 <label for="daily-input-date">Tanggal:</label>
-                                <input type="date" id="daily-input-date" required>
+                                <input type="date" id="daily-input-date" required readonly title="Log harian hanya untuk tanggal hari ini.">
                             </div>
                             <div>
                                 <label for="daily-sleep-hours">Tidur (Jam):</label>
@@ -2199,7 +2206,7 @@
                                 <h4 class="card-title" style="font-size:.95rem;">🍱 Pilihan Makanan & Minuman</h4>
                                 <p class="card-subtitle">Database pangan praktis dengan estimasi energi dan makro per porsi.</p>
                             </div>
-                            <input type="search" id="nutrition-food-search" placeholder="Cari makanan/minuman..." style="max-width:220px; width:100%;">
+                            <input type="search" id="nutrition-food-search" placeholder="Cari makanan/minuman..." style="max-width:220px;">
                         </div>
                         <div class="nutrition-responsive-table-wrap">
                             <table class="nutrition-responsive-table">
@@ -2365,6 +2372,38 @@
                     </div>
                 </div>
 
+
+                <!-- MS7 1RM CALCULATOR -->
+                <div class="card" id="one-rm-card">
+                    <div class="card-header">
+                        <div>
+                            <h3 class="card-title">🏆 Kalkulator 1RM</h3>
+                            <p class="card-subtitle">Estimasi One-Rep Max memakai Epley Formula dari riwayat beban aktual.</p>
+                        </div>
+                        <span class="pill-badge">Epley</span>
+                    </div>
+                    <div class="form-group-inline">
+                        <div>
+                            <label for="one-rm-exercise">Gerakan</label>
+                            <select id="one-rm-exercise" onchange="updateOneRM()"></select>
+                        </div>
+                        <div>
+                            <label for="one-rm-weight">Beban (kg)</label>
+                            <input type="number" id="one-rm-weight" min="0" step="0.5" placeholder="Contoh 60" oninput="updateOneRM()">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="one-rm-reps">Repetisi</label>
+                        <input type="number" id="one-rm-reps" min="1" max="30" value="8" oninput="updateOneRM()">
+                    </div>
+                    <div class="mini-panel">
+                        <div style="font-size:.72rem;color:var(--text-muted);text-transform:uppercase;font-weight:800;">Estimasi 1RM</div>
+                        <div class="one-rm-result" id="one-rm-result">— kg</div>
+                        <div class="one-rm-bar"><div id="one-rm-bar-fill"></div></div>
+                        <div style="margin-top:8px;font-size:.7rem;color:var(--text-muted);" id="one-rm-detail">Masukkan beban dan repetisi.</div>
+                    </div>
+                </div>
+
                 <!-- Smart AI Coach Analysis Card -->
                 <div class="card" style="border-color:rgba(6, 182, 212, 0.4);">
                     <div class="card-header">
@@ -2464,6 +2503,25 @@
                         <span>💾</span> Simpan Profil & Perbarui Perhitungan Kalori
                     </button>
                 </form>
+
+
+                <div class="mini-panel" style="margin-top:22px;">
+                    <div class="card-header" style="margin-bottom:10px;">
+                        <div>
+                            <h4 class="card-title" style="font-size:.95rem;">🎨 Tema Tampilan</h4>
+                            <p class="card-subtitle">Pilih aksen warna aplikasi. Preferensi tersimpan di perangkat.</p>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                        <button type="button" class="theme-swatch" data-theme-choice="lime" style="background:#10b981;" onclick="setAppTheme('lime')" aria-label="Neon Lime">L</button>
+                        <button type="button" class="theme-swatch" data-theme-choice="blue" style="background:#3b82f6;" onclick="setAppTheme('blue')" aria-label="Cyber Blue">B</button>
+                        <button type="button" class="theme-swatch" data-theme-choice="crimson" style="background:#ef4444;" onclick="setAppTheme('crimson')" aria-label="Crimson Red">C</button>
+                    </div>
+                </div>
+
+                <div class="pwa-install-hint" style="margin-top:12px;">
+                    📱 <strong>PWA siap dipasang:</strong> setelah aplikasi di-host melalui HTTPS/localhost, gunakan menu browser <em>Install app / Add to Home Screen</em>. Data tetap tersimpan di perangkat.
+                </div>
 
                 <div style="margin-top:24px; padding-top:18px; border-top:1px solid var(--border-subtle); display:flex; gap:10px; flex-wrap:wrap;">
                     <button type="button" class="btn-secondary" onclick="exportAppData()">⬇️ Ekspor Cadangan (JSON)</button>
@@ -3920,7 +3978,9 @@
             CUSTOM_SCHED: 'fitpulse_custom_sched_v1',
             CUSTOM_PROGS: 'fitpulse_custom_progs_v1',
             SETTINGS: 'fitpulse_settings_v1',
-            GAMIFY: 'fitpulse_gamify_v1'
+            GAMIFY: 'fitpulse_gamify_v1',
+            FOOD_LOGS: 'fitpulse_food_logs_v1',
+            THEME: 'fitpulse_theme_v1'
         };
 
         let currentActiveTab = 'home';
@@ -5842,6 +5902,8 @@
                     e.preventDefault();
                     if (!requireProfile('Log Harian')) return;
                     const today = getLocalDateKey();
+                    const dateField = document.getElementById('daily-input-date');
+                    if (dateField) dateField.value = today;
                     const dateStr = today;
                     const sleepVal = Number(document.getElementById('daily-sleep-hours').value) || 7;
                     const energyVal = Number(document.getElementById('daily-energy-rating').value) || 4;
@@ -6027,6 +6089,8 @@
             audioEl.src = track.src;
             audioEl.load();
             document.getElementById('music-track-name').textContent = track.title;
+            const select = document.getElementById('music-track-select');
+            if (select) select.value = String(currentTrackIdx);
         }
 
         function toggleAudioPlay() {
@@ -6164,6 +6228,221 @@
                 location.reload();
             }
         }
+
+        /* ==========================================================================
+           17. MS7 UPGRADE PACK: FOOD LOG, 1RM, THEMES, PWA & ROBUST REST AUDIO
+           ========================================================================== */
+
+        function todayOnlyForDailyLog(){
+            const el = document.getElementById('daily-input-date');
+            if(el){
+                el.value = getLocalDateKey();
+                el.min = el.value;
+                el.max = el.value;
+            }
+        }
+
+        function initFoodLogger(){
+            const select = document.getElementById('food-log-select');
+            if(!select || typeof NUTRITION_FOOD_DATABASE === 'undefined') return;
+            select.innerHTML = NUTRITION_FOOD_DATABASE.map((f,i)=>
+                `<option value="${i}">${escHtml(f.name)} • ${f.portion}</option>`
+            ).join('');
+            renderFoodLog();
+        }
+
+        function getFoodLogsToday(){
+            const all = loadJSON(APP_KEYS.FOOD_LOGS, {});
+            return Array.isArray(all[getLocalDateKey()]) ? all[getLocalDateKey()] : [];
+        }
+
+        function saveFoodLogsToday(items){
+            const all = loadJSON(APP_KEYS.FOOD_LOGS, {});
+            all[getLocalDateKey()] = items;
+            saveJSON(APP_KEYS.FOOD_LOGS, all);
+        }
+
+        function addFoodLogItem(){
+            if(!requireProfile('Food Log')) return;
+            const select = document.getElementById('food-log-select');
+            const gramsEl = document.getElementById('food-log-grams');
+            if(!select || !gramsEl) return;
+            const f = NUTRITION_FOOD_DATABASE[Number(select.value)];
+            const grams = Math.max(1, Number(gramsEl.value) || 0);
+            if(!f) return;
+            const factor = grams / (parseFloat(String(f.portion).replace(',', '.')) || 100);
+            const item = {
+                id:'food-'+Date.now(),
+                name:f.name, grams, kcal:+(f.kcal*factor).toFixed(1),
+                p:+(f.p*factor).toFixed(1), c:+(f.c*factor).toFixed(1), f:+(f.f*factor).toFixed(1),
+                timestamp:new Date().toISOString()
+            };
+            const items = getFoodLogsToday();
+            items.push(item);
+            saveFoodLogsToday(items);
+            renderFoodLog();
+            renderDailyHub(loadJSON(APP_KEYS.BIO,null));
+            showToast(`🍽️ ${f.name} ditambahkan ke Food Log.`, 'success');
+        }
+
+        function removeFoodLogItem(id){
+            const items = getFoodLogsToday().filter(x => x.id !== id);
+            saveFoodLogsToday(items);
+            renderFoodLog();
+            renderDailyHub(loadJSON(APP_KEYS.BIO,null));
+        }
+
+        function renderFoodLog(){
+            const list = document.getElementById('food-log-list');
+            const totalEl = document.getElementById('food-log-total-kcal');
+            const summary = document.getElementById('food-log-macro-summary');
+            if(!list) return;
+            const items = getFoodLogsToday();
+            const totals = items.reduce((a,x)=>({
+                kcal:a.kcal+(Number(x.kcal)||0), p:a.p+(Number(x.p)||0),
+                c:a.c+(Number(x.c)||0), f:a.f+(Number(x.f)||0)
+            }),{kcal:0,p:0,c:0,f:0});
+            if(totalEl) totalEl.textContent = `${Math.round(totals.kcal)} kcal`;
+            if(summary) summary.innerHTML =
+                `<span class="macro-pill">🥩 P ${totals.p.toFixed(1)} g</span>
+                 <span class="macro-pill">🍚 C ${totals.c.toFixed(1)} g</span>
+                 <span class="macro-pill">🥑 F ${totals.f.toFixed(1)} g</span>`;
+            list.innerHTML = items.length ? items.map(x=>
+                `<div class="food-log-row">
+                    <div><strong>${escHtml(x.name)}</strong><br><small>${x.grams} g • ${x.kcal.toFixed(1)} kcal</small></div>
+                    <small>P ${x.p.toFixed(1)} / C ${x.c.toFixed(1)} / F ${x.f.toFixed(1)}</small>
+                    <button type="button" class="btn-danger food-delete" onclick="removeFoodLogItem('${x.id}')">Hapus</button>
+                </div>`).join('') :
+                `<div style="padding:12px;color:var(--text-muted);font-size:.74rem;">Belum ada makanan yang dicatat hari ini.</div>`;
+        }
+
+        function getExerciseHistoryFlat(){
+            const history = loadJSON(APP_KEYS.WORKOUT_HISTORY, []);
+            const rows = [];
+            history.forEach(session => (session.exerciseDetails||[]).forEach(detail=>{
+                (detail.sets||[]).forEach(st=>rows.push({
+                    name:detail.name, weight:Number(st.weightKg)||0, reps:Number(st.reps)||0, date:session.date
+                }));
+                if(!(detail.sets||[]).length && detail.weightKg) rows.push({
+                    name:detail.name, weight:Number(detail.weightKg)||0, reps:Number(detail.reps)||0, date:session.date
+                });
+            }));
+            return rows.filter(x=>x.weight>0 && x.reps>0);
+        }
+
+        function initOneRM(){
+            const select=document.getElementById('one-rm-exercise');
+            if(!select) return;
+            const names=[...new Set(getExerciseHistoryFlat().map(x=>x.name))].sort();
+            select.innerHTML = names.length ? names.map(n=>`<option value="${escHtml(n)}">${escHtml(n)}</option>`).join('') :
+                '<option value="">Belum ada riwayat beban</option>';
+            const latest = getExerciseHistoryFlat().slice(-1)[0];
+            if(latest){
+                select.value=latest.name;
+                document.getElementById('one-rm-weight').value=latest.weight;
+                document.getElementById('one-rm-reps').value=latest.reps;
+            }
+            updateOneRM();
+        }
+
+        function updateOneRM(){
+            const select=document.getElementById('one-rm-exercise');
+            const wEl=document.getElementById('one-rm-weight');
+            const rEl=document.getElementById('one-rm-reps');
+            const out=document.getElementById('one-rm-result');
+            const detail=document.getElementById('one-rm-detail');
+            const fill=document.getElementById('one-rm-bar-fill');
+            if(!out||!wEl||!rEl) return;
+            const w=Math.max(0,Number(wEl.value)||0);
+            const r=Math.min(30,Math.max(1,Number(rEl.value)||1));
+            const rm=w*(1+r/30);
+            out.textContent=w?`${rm.toFixed(1)} kg`:'— kg';
+            if(detail) detail.textContent=w ? `${w} kg × ${r} reps → estimasi Epley ${rm.toFixed(1)} kg.` : 'Masukkan beban dan repetisi.';
+            if(fill) fill.style.width=`${Math.min(100,Math.round((w/rm)*100||0))}%`;
+        }
+
+        function syncOneRMFromExercise(){
+            const name=document.getElementById('one-rm-exercise')?.value;
+            const row=getExerciseHistoryFlat().filter(x=>x.name===name).slice(-1)[0];
+            if(row){
+                document.getElementById('one-rm-weight').value=row.weight;
+                document.getElementById('one-rm-reps').value=row.reps;
+            }
+            updateOneRM();
+        }
+
+        function setAppTheme(theme){
+            if(!['lime','blue','crimson'].includes(theme)) theme='lime';
+            document.documentElement.setAttribute('data-theme',theme);
+            saveJSON(APP_KEYS.THEME,theme);
+            document.querySelectorAll('[data-theme-choice]').forEach(b=>b.classList.toggle('active',b.dataset.themeChoice===theme));
+        }
+
+        function initAppTheme(){
+            setAppTheme(loadJSON(APP_KEYS.THEME,'lime'));
+        }
+
+        function selectMusicTrack(idx){
+            currentTrackIdx=Number(idx)||0;
+            loadAudioTrack(currentTrackIdx);
+            const select=document.getElementById('music-track-select');
+            if(select) select.value=String(currentTrackIdx);
+            showToast(`🎵 ${MUSIC_TRACKS[currentTrackIdx].title}`, 'info', 1800);
+        }
+
+        function updateRestProgress(seconds, total){
+            const fill=document.getElementById('hud-rest-progress');
+            if(fill) fill.style.width=`${Math.max(0,Math.min(100,(seconds/Math.max(1,total))*100))}%`;
+        }
+
+        // Patch the rest timer so the first display is immediate and completion has a clear bell.
+        const ms7OriginalRestTimerHUD = startRestTimerHUD;
+        startRestTimerHUD = function(seconds){
+            activeWorkoutSession.isResting=true;
+            let remaining=Math.max(1,Number(seconds)||60);
+            const banner=document.getElementById('hud-rest-banner');
+            const countdownEl=document.getElementById('hud-rest-countdown');
+            const completeBtn=document.getElementById('hud-complete-set-btn');
+            if(banner) banner.style.display='block';
+            if(completeBtn) completeBtn.disabled=true;
+            if(countdownEl) countdownEl.textContent=`${remaining}s`;
+            updateRestProgress(remaining,remaining);
+            if(activeWorkoutSession.restInterval) clearInterval(activeWorkoutSession.restInterval);
+            const startedTotal=remaining;
+            activeWorkoutSession.restInterval=setInterval(()=>{
+                remaining--;
+                if(countdownEl) countdownEl.textContent=`${Math.max(0,remaining)}s`;
+                updateRestProgress(remaining,startedTotal);
+                if(remaining<=3 && remaining>=1) playSynthCue('tick');
+                if(remaining<=0){
+                    clearInterval(activeWorkoutSession.restInterval);
+                    activeWorkoutSession.restInterval=null;
+                    activeWorkoutSession.isResting=false;
+                    if(banner) banner.style.display='none';
+                    if(completeBtn) completeBtn.disabled=false;
+                    playSynthCue('go');
+                    if('vibrate' in navigator) navigator.vibrate?.([120,80,180]);
+                    activeWorkoutSession.setIndex=Math.min(activeWorkoutSession.setsTotal,activeWorkoutSession.setIndex+1);
+                    renderLiveWorkoutHUD();
+                }
+            },1000);
+        };
+
+        // Safe daily date locking and feature initialization.
+        document.addEventListener('DOMContentLoaded',()=>{
+            todayOnlyForDailyLog();
+            initFoodLogger();
+            initOneRM();
+            initAppTheme();
+            const sel=document.getElementById('one-rm-exercise');
+            if(sel) sel.addEventListener('change',syncOneRMFromExercise);
+            const dailyDate=document.getElementById('daily-input-date');
+            if(dailyDate) dailyDate.addEventListener('change',todayOnlyForDailyLog);
+            if('serviceWorker' in navigator && (location.protocol==='https:' || location.hostname==='localhost')){
+                navigator.serviceWorker.register('./sw.js').catch(()=>{});
+            }
+        });
+
     </script>
 
 
