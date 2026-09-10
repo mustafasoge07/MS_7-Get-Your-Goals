@@ -1623,32 +1623,18 @@
         #nutrition input,#nutrition select{max-width:100%;}
         .mobile-bottom-nav{
             display:flex !important;
-            position:fixed;
-            left:0;
-            right:0;
-            bottom:0;
-            width:100%;
-            max-width:100%;
-            padding:7px 7px calc(7px + env(safe-area-inset-bottom));
-            gap:5px;
-            overflow-x:auto;
-            overflow-y:hidden;
-            justify-content:flex-start;
-            -webkit-overflow-scrolling:touch;
-            overscroll-behavior-x:contain;
-            scroll-snap-type:x proximity;
-            scrollbar-width:none;
-            z-index:2000;
+            overflow:hidden;
+            justify-content:stretch;
+            gap:2px;
+            padding-left:4px;
+            padding-right:4px;
         }
-        .mobile-bottom-nav::-webkit-scrollbar{display:none;}
         .mobile-nav-item{
-            flex:0 0 78px;
-            width:78px;
-            min-width:78px;
-            max-width:78px;
-            min-height:54px;
-            padding:4px 5px;
-            scroll-snap-align:center;
+            flex:1 1 0;
+            min-width:0;
+            width:0;
+            max-width:none;
+            padding:4px 2px;
             overflow:hidden;
         }
         .mobile-nav-item > span:last-child{
@@ -1685,7 +1671,7 @@
             .daily-food-sync-main{grid-column:1 / -1;}
             .food-log-head{flex-direction:column;}
             .food-log-macros{font-size:.64rem;}
-            .mobile-nav-item{font-size:.60rem;padding:4px 4px;min-width:72px;width:72px;}
+            .mobile-nav-item{font-size:.56rem;padding:4px 1px;min-width:0;}
             .mobile-nav-item span.icon{font-size:1.02rem;}
             .stat-card{padding:clamp(14px,4vw,20px);}
             .stat-val{font-size:clamp(1.2rem,6vw,1.65rem);}
@@ -1694,7 +1680,7 @@
             .food-log-row{grid-template-columns:1fr auto;}.food-log-row .food-delete{grid-column:2;}
         }
         @media(max-width:380px){
-            .mobile-nav-item{font-size:.56rem;padding:4px 3px;min-width:68px;width:68px;}
+            .mobile-nav-item{font-size:.52rem;padding:4px 1px;min-width:0;}
             .mobile-nav-item span.icon{font-size:.98rem;}
             .hub-footer{font-size:.62rem;}
             .card-title{font-size:.98rem;}
