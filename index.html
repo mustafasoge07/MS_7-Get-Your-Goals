@@ -1375,30 +1375,44 @@
             bottom: 0;
             left: 0;
             width: 100vw;
+            max-width: 100vw;
             background: rgba(11, 17, 32, 0.95);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-top: 1px solid var(--border-subtle);
-            padding: 8px 12px;
+            padding: 7px 8px calc(7px + env(safe-area-inset-bottom));
             z-index: 950;
-            justify-content: space-around;
-            align-items: center;
+            justify-content: flex-start;
+            align-items: stretch;
+            gap: 4px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .mobile-bottom-nav::-webkit-scrollbar {
+            display: none;
         }
 
         .mobile-nav-item {
             display: flex;
+            flex: 0 0 72px;
+            min-width: 72px;
+            min-height: 54px;
             flex-direction: column;
             align-items: center;
-            gap: 4px;
+            justify-content: center;
+            gap: 3px;
             background: transparent;
             border: none;
             color: var(--text-muted);
-            font-size: 0.68rem;
+            font-size: 0.62rem;
             font-weight: 600;
             cursor: pointer;
-            padding: 4px 8px;
+            padding: 4px 5px;
             border-radius: var(--radius-sm);
             transition: var(--transition-smooth);
+            white-space: nowrap;
         }
 
         .mobile-nav-item span.icon {
@@ -1442,6 +1456,25 @@
 
             .main-content {
                 padding: 18px 14px;
+                width: 100%;
+                max-width: 100%;
+                min-width: 0;
+            }
+
+            .main-content > * {
+                min-width: 0;
+            }
+
+            .tab-content,
+            .tab-content > .grid-2-col,
+            .tab-content > .grid-3-col {
+                width: 100%;
+                min-width: 0;
+            }
+
+            #nutrition .card {
+                min-width: 0;
+                width: 100%;
             }
 
             .top-header {
@@ -1574,6 +1607,26 @@
         }
 
         @media (max-width: 600px) {
+            #nutrition .card-header {
+                align-items: flex-start;
+            }
+            #nutrition .card-header > div {
+                min-width: 0;
+            }
+            #nutrition #nutrition-food-search {
+                max-width: 100% !important;
+                width: 100% !important;
+                margin-top: 4px;
+            }
+            #nutrition .calorie-gauge-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            #nutrition .calorie-gauge-card > div:last-child {
+                text-align: left !important;
+            }
+
             .manual-exercise-filters { grid-template-columns:1fr; }
             .manual-muscle-focus { gap:6px; }
             .manual-group-chip { flex:1 1 calc(50% - 6px); justify-content:flex-start; }
@@ -1709,7 +1762,11 @@
         <button type="button" class="mobile-nav-item" data-tab="database">
             <span class="icon">📚</span>
             <span>Gerakan</span>
+        </button>        <button type="button" class="mobile-nav-item" data-tab="nutrition">
+            <span class="icon">🥗</span>
+            <span>Nutrisi</span>
         </button>
+
         <button type="button" class="mobile-nav-item" data-tab="progress">
             <span class="icon">📊</span>
             <span>Grafik</span>
@@ -2142,7 +2199,7 @@
                                 <h4 class="card-title" style="font-size:.95rem;">🍱 Pilihan Makanan & Minuman</h4>
                                 <p class="card-subtitle">Database pangan praktis dengan estimasi energi dan makro per porsi.</p>
                             </div>
-                            <input type="search" id="nutrition-food-search" placeholder="Cari makanan/minuman..." style="max-width:220px;">
+                            <input type="search" id="nutrition-food-search" placeholder="Cari makanan/minuman..." style="max-width:220px; width:100%;">
                         </div>
                         <div class="nutrition-responsive-table-wrap">
                             <table class="nutrition-responsive-table">
