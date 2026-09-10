@@ -1017,6 +1017,12 @@
             font-size:.68rem;
             font-weight:600;
         }
+        .manual-selection-note{
+            margin-top:5px;
+            font-size:.62rem;
+            color:var(--cyan-bright);
+            opacity:.9;
+        }
         .manual-exercise-picker {
             display:grid;
             grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
@@ -1594,6 +1600,32 @@
         }
         .fluid-title{font-size:clamp(1.05rem,2.5vw,1.65rem);}
         .fluid-number{font-size:clamp(1.25rem,4vw,2rem);}
+        .music-local-box{
+            margin:0 0 10px;
+            padding:9px 10px;
+            border:1px solid var(--border-subtle);
+            border-radius:10px;
+            background:rgba(6,9,17,.40);
+        }
+        .music-local-box label{
+            display:block;
+            margin-bottom:6px;
+            font-size:.66rem;
+            font-weight:800;
+            color:var(--cyan-bright);
+        }
+        .music-local-box input{
+            width:100%;
+            max-width:100%;
+            font-size:.66rem;
+        }
+        .music-local-box small{
+            display:block;
+            margin-top:5px;
+            color:var(--text-muted);
+            font-size:.60rem;
+            line-height:1.35;
+        }
         .music-track-select{
             width:100%; margin:0 0 10px; padding:9px 11px; border-radius:9px;
             background:var(--bg-input); color:var(--text-main); border:1px solid var(--border-subtle);
@@ -1623,26 +1655,35 @@
         #nutrition input,#nutrition select{max-width:100%;}
         .mobile-bottom-nav{
             display:flex !important;
-            overflow:hidden;
-            justify-content:stretch;
-            gap:2px;
-            padding-left:4px;
-            padding-right:4px;
-        }
-        .mobile-nav-item{
-            flex:1 1 0;
-            min-width:0;
-            width:0;
-            max-width:none;
-            padding:4px 2px;
-            overflow:hidden;
-        }
-        .mobile-nav-item > span:last-child{
-            display:block;
+            position:fixed;
+            left:0;
+            right:0;
+            bottom:0;
             width:100%;
-            overflow:hidden;
-            text-overflow:ellipsis;
-            white-space:nowrap;
+            max-width:100%;
+            padding:7px 7px calc(7px + env(safe-area-inset-bottom));
+            gap:5px;
+            overflow-x:auto;
+            overflow-y:hidden;
+            justify-content:flex-start;
+            -webkit-overflow-scrolling:touch;
+            overscroll-behavior-x:contain;
+            scroll-snap-type:x proximity;
+            scrollbar-width:none;
+            touch-action:pan-x;
+            z-index:2000;
+            background:rgba(11,17,32,.97);
+        }
+        .mobile-bottom-nav::-webkit-scrollbar{display:none;}
+        .mobile-nav-item{
+            flex:0 0 76px;
+            width:76px;
+            min-width:76px;
+            max-width:76px;
+            min-height:54px;
+            padding:5px 4px;
+            scroll-snap-align:center;
+            flex-shrink:0;
         }
         .main-content{min-width:0;}
         .card{min-width:0;}
@@ -1671,8 +1712,8 @@
             .daily-food-sync-main{grid-column:1 / -1;}
             .food-log-head{flex-direction:column;}
             .food-log-macros{font-size:.64rem;}
-            .mobile-nav-item{font-size:.56rem;padding:4px 1px;min-width:0;}
-            .mobile-nav-item span.icon{font-size:1.02rem;}
+            .mobile-nav-item{font-size:.60rem;padding:5px 4px;min-width:76px;width:76px;max-width:76px;}
+            .mobile-nav-item span.icon{font-size:1.08rem;}
             .stat-card{padding:clamp(14px,4vw,20px);}
             .stat-val{font-size:clamp(1.2rem,6vw,1.65rem);}
             .pill-badge{max-width:100%;font-size:.72rem;padding:6px 9px;}
@@ -1680,8 +1721,8 @@
             .food-log-row{grid-template-columns:1fr auto;}.food-log-row .food-delete{grid-column:2;}
         }
         @media(max-width:380px){
-            .mobile-nav-item{font-size:.52rem;padding:4px 1px;min-width:0;}
-            .mobile-nav-item span.icon{font-size:.98rem;}
+            .mobile-nav-item{font-size:.56rem;padding:5px 3px;min-width:68px;width:68px;max-width:68px;}
+            .mobile-nav-item span.icon{font-size:1.05rem;}
             .hub-footer{font-size:.62rem;}
             .card-title{font-size:.98rem;}
             .btn-primary,.btn-secondary,.btn-success{font-size:.78rem;padding:10px 12px;}
@@ -1709,7 +1750,7 @@
     <!-- DESKTOP SIDEBAR -->
     <aside class="sidebar">
         <div class="brand-box">
-            <div class="brand-logo"><img src="https://dcpmtwbyp7.ufs.sh/f/75hB4NpFqzBxVAzheOinYBiH2QTPN4ktjzM1LRy0v8Wxqh6e" alt="MS7 Logo"> </div>
+            <div class="brand-logo"><img src="https://dcpmtwbyp7.ufs.sh/f/75hB4NpFqzBxVAzheOinYBiH2QTPN4ktjzM1LRy0v8Wxqh6e" alt="MS7 Logo"></div>
             <div class="brand-text">
                 <h2>Get Your Goals by MS7</h2>
                 <span>YOU CAN DO IT !!!</span>
@@ -2749,6 +2790,11 @@
         <div class="music-expanded-content">
             <label class="music-select-label" for="music-track-select">Pilih lagu workout</label>
             <select id="music-track-select" class="music-track-select" onchange="selectMusicTrack(this.value)" aria-label="Pilih lagu workout"></select>
+            <div class="music-local-box">
+                <label for="music-local-files">🎧 Tambahkan lagu dari HP</label>
+                <input id="music-local-files" type="file" accept="audio/*" multiple onchange="addLocalMusicFiles(this.files)">
+                <small id="music-local-status">Pilih file MP3/audio dari HP untuk playlist yang lebih stabil.</small>
+            </div>
             <p class="track-title" id="music-track-name">Green Day - American Idiot</p>
             <audio id="audio-el" preload="none" style="display:none;"></audio>
             
@@ -5218,11 +5264,14 @@
         }
 
         function syncManualSelectionState() {
+            // Only synchronize checkboxes that are currently rendered.
+            // Hidden selections from another muscle/filter stay in the persistent Set.
             document.querySelectorAll('.manual-exercise-cb').forEach(cb => {
                 if (cb.checked) manualSelectedExercises.add(cb.value);
                 else manualSelectedExercises.delete(cb.value);
             });
             manualSelectedGroups = new Set(getManualSelectedGroups());
+            updateManualSelectionSummary();
         }
 
         function setManualSelectionState(selectedExercises = [], selectedGroups = []) {
@@ -5319,10 +5368,6 @@
 
         function escHtml(value) {
             return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-        }
-
-        function getSelectedManualExercises() {
-            return Array.from(document.querySelectorAll('.manual-exercise-cb:checked')).map(cb => cb.value);
         }
 
         function renderExerciseLoadHistory() {
@@ -6225,6 +6270,44 @@
            14. AUDIO & WORKOUT SOUND PLAYER
            ========================================================================== */
         const audioEl = document.getElementById('audio-el');
+        const LOCAL_MUSIC_URLS = [];
+
+        function addLocalMusicFiles(fileList){
+            const files = Array.from(fileList || []).filter(file => String(file.type || '').startsWith('audio/'));
+            if(!files.length) return;
+
+            // Remove previously-added local tracks and release their object URLs.
+            for(let i=MUSIC_TRACKS.length-1;i>=0;i--){
+                if(MUSIC_TRACKS[i].local){
+                    try{ URL.revokeObjectURL(MUSIC_TRACKS[i].src); }catch(e){}
+                    MUSIC_TRACKS.splice(i,1);
+                }
+            }
+
+            files.forEach(file => {
+                const url = URL.createObjectURL(file);
+                LOCAL_MUSIC_URLS.push(url);
+                MUSIC_TRACKS.unshift({
+                    title: '📱 ' + file.name.replace(/\\.[^.]+$/, ''),
+                    src: url,
+                    local: true
+                });
+            });
+
+            const select = document.getElementById('music-track-select');
+            if(select){
+                select.innerHTML = MUSIC_TRACKS.map((t,i) =>
+                    `<option value="${i}">${escHtml(t.title)}</option>`
+                ).join('');
+                select.value = '0';
+            }
+
+            loadAudioTrack(0);
+
+            const status = document.getElementById('music-local-status');
+            if(status) status.textContent = `${files.length} lagu dari HP siap diputar.`;
+            showToast(`🎧 ${files.length} lagu dari HP ditambahkan ke playlist.`, 'success');
+        }
 
         function loadAudioTrack(idx) {
             if (!audioEl || !MUSIC_TRACKS.length) return;
@@ -6268,7 +6351,7 @@
                         isAudioPlaying = false;
                         if (playBtn) playBtn.textContent = '▶';
                         console.warn('Audio play failed:', err);
-                        showToast('Audio gagal diputar. Coba Play lagi atau cek koneksi internet.', 'warning');
+                        showToast('Audio belum bisa diputar. Coba tambahkan file MP3 dari HP.', 'warning');
                     });
                 }
             }
@@ -6741,6 +6824,17 @@
   });
 })();
 </script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function(){
+        var nav = document.querySelector('.mobile-bottom-nav');
+        if(!nav) return;
+        nav.addEventListener('click', function(e){
+            var btn = e.target.closest('.mobile-nav-item[data-tab="nutrition"]');
+            if(btn) btn.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
+        }, {passive:false});
+    });
+    </script>
 </body>
 
 </html>
