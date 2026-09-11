@@ -14,6 +14,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
         :root {
@@ -2939,13 +2940,184 @@
         </div>
     </div>
 
+    <!-- SUPABASE SYNC STATUS -->
+    <div id="supabase-sync-status" aria-live="polite" style="position:fixed;right:14px;bottom:14px;z-index:16000;padding:8px 12px;border:1px solid var(--border);border-radius:999px;background:rgba(8,12,22,.88);backdrop-filter:blur(10px);font-size:.72rem;color:var(--text-muted);box-shadow:0 8px 24px rgba(0,0,0,.25);pointer-events:none;">☁️ Menghubungkan...</div>
+
     <!-- TOAST NOTIFICATION CONTAINER -->
     <div id="toast-container"></div>
 
     <!-- ==================== JAVASCRIPT ENGINE ==================== -->
     <script>
-        /* ==========================================================================
-           1. EXERCISE DATABASE (80+ Gerakan dengan Data Lengkap, MET & Tips Form)
+        /* ======================================================================
+           SUPABASE CLOUD SYNC
+           - Supabase is the cloud source of truth.
+           - localStorage remains an offline/fast cache.
+           - Uses the publishable key only; never put a secret/service_role key here.
+           ====================================================================== */
+        window.FITPULSE_SUPABASE_READY = false;
+        window.FITPULSE_SUPABASE_USER = null;
+        window.FITPULSE_SUPABASE_STATUS = 'Memulai sinkronisasi...';
+
+        const FITPULSE_SUPABASE_URL = 'https://kyvlvtfhlagrlroboery.supabase.co';
+        const FITPULSE_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_M1nVSL2BuMHylNMguOkztQ_7_XGQZGK';
+        const fitpulseSupabase = window.supabase.createClient(
+            FITPULSE_SUPABASE_URL,
+            FITPULSE_SUPABASE_PUBLISHABLE_KEY,
+            { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } }
+        );
+
+        let fitpulseSupabaseSyncTimer = null;
+        const fitpulseSupabasePending = new Map();
+
+        function fitpulseSetCloudStatus(message, type = 'info') {
+            window.FITPULSE_SUPABASE_STATUS = message;
+            console.info('[Supabase]', message);
+            const el = document.getElementById('supabase-sync-status');
+            if (el) {
+                el.textContent = message;
+                el.dataset.type = type;
+            }
+        }
+
+        async function fitpulseEnsureAuth() {
+            const { data: sessionData, error: sessionError } = await fitpulseSupabase.auth.getSession();
+            if (sessionError) throw sessionError;
+            if (sessionData?.session?.user) return sessionData.session.user;
+
+            // First-run mode: anonymous Auth keeps the existing UI unchanged.
+            // Enable Authentication > Sign In / Providers > Anonymous in Supabase.
+            const { data, error } = await fitpulseSupabase.auth.signInAnonymously();
+            if (error) throw error;
+            return data?.user || data?.session?.user || null;
+        }
+
+        async function fitpulsePullCloudState() {
+            if (!window.FITPULSE_SUPABASE_USER) return;
+            const { data, error } = await fitpulseSupabase
+                .from('app_state')
+                .select('state_key,state_data')
+                .eq('user_id', window.FITPULSE_SUPABASE_USER.id);
+            if (error) throw error;
+
+            (data || []).forEach(row => {
+                try {
+                    localStorage.setItem(row.state_key, JSON.stringify(row.state_data));
+                } catch (e) {
+                    console.warn('[Supabase] Gagal memasukkan cache:', row.state_key, e);
+                }
+            });
+        }
+
+        async function fitpulsePushState(key, value) {
+            if (!window.FITPULSE_SUPABASE_USER) return;
+            const { error } = await fitpulseSupabase
+                .from('app_state')
+                .upsert({
+                    user_id: window.FITPULSE_SUPABASE_USER.id,
+                    state_key: key,
+                    state_data: value,
+                    updated_at: new Date().toISOString()
+                }, { onConflict: 'user_id,state_key' });
+            if (error) throw error;
+        }
+
+        function fitpulseQueueState(key, value) {
+            fitpulseSupabasePending.set(key, value);
+            clearTimeout(fitpulseSupabaseSyncTimer);
+            fitpulseSupabaseSyncTimer = setTimeout(async () => {
+                const batch = Array.from(fitpulseSupabasePending.entries());
+                fitpulseSupabasePending.clear();
+                try {
+                    for (const [pendingKey, pendingValue] of batch) {
+                        await fitpulsePushState(pendingKey, pendingValue);
+                    }
+                    fitpulseSetCloudStatus('☁️ Tersinkron ke Supabase', 'success');
+                } catch (error) {
+                    console.error('[Supabase] Sync gagal:', error);
+                    batch.forEach(([pendingKey, pendingValue]) => fitpulseSupabasePending.set(pendingKey, pendingValue));
+                    fitpulseSetCloudStatus('⚠️ Offline / sync tertunda', 'warning');
+                }
+            }, 450);
+        }
+
+        window.FITPULSE_SUPABASE_QUEUE = fitpulseQueueState;
+
+        async function initializeFitPulseSupabase() {
+            try {
+                fitpulseSetCloudStatus('☁️ Menghubungkan ke Supabase...');
+                const user = await fitpulseEnsureAuth();
+                if (!user) throw new Error('Supabase Auth tidak mengembalikan user.');
+                window.FITPULSE_SUPABASE_USER = user;
+
+                await fitpulsePullCloudState();
+                window.FITPULSE_SUPABASE_READY = true;
+                fitpulseSetCloudStatus('☁️ Data cloud aktif', 'success');
+
+                // Cloud data wins on startup, then redraw the existing app.
+                // UI render errors must not be reported as a Supabase connection failure.
+                try {
+                    const bio = typeof loadJSON === 'function' ? loadJSON(APP_KEYS.BIO, null) : null;
+                    if (typeof renderProfile === 'function') renderProfile(bio);
+                    if (typeof renderGamificationHub === 'function') renderGamificationHub();
+                    if (typeof renderDailyHub === 'function') renderDailyHub(bio);
+                    if (typeof renderExerciseDatabase === 'function') renderExerciseDatabase();
+                    if (typeof renderPrograms === 'function') renderPrograms(bio);
+                    if (typeof renderSchedule === 'function') renderSchedule(bio);
+                    if (typeof renderNutrition === 'function') renderNutrition(bio);
+                    if (typeof renderProgressAndCharts === 'function') renderProgressAndCharts(bio);
+                    if (typeof setWeeklyEvalAvailability === 'function') setWeeklyEvalAvailability();
+                } catch (uiError) {
+                    console.error('[UI] Render setelah cloud sync gagal:', uiError);
+                    if (typeof showToast === 'function') showToast('Data cloud aktif, tetapi ada bagian tampilan yang gagal diperbarui.', 'warning', 4500);
+                }
+
+                // One-time migration: existing localStorage data is copied to cloud
+                // only when that state key does not already exist in Supabase.
+                await fitpulseMigrateLocalStateIfNeeded();
+            } catch (error) {
+                console.error('[Supabase] Inisialisasi gagal:', error);
+                window.FITPULSE_SUPABASE_READY = false;
+                fitpulseSetCloudStatus('⚠️ Supabase belum aktif — aplikasi tetap berjalan offline', 'warning');
+                if (typeof showToast === 'function') {
+                    showToast('☁️ Supabase belum tersambung. Aplikasi tetap bisa dipakai dengan localStorage.', 'warning', 5500);
+                }
+            }
+        }
+
+        async function fitpulseMigrateLocalStateIfNeeded() {
+            if (!window.FITPULSE_SUPABASE_USER) return;
+            const { data: cloudRows, error } = await fitpulseSupabase
+                .from('app_state')
+                .select('state_key')
+                .eq('user_id', window.FITPULSE_SUPABASE_USER.id);
+            if (error) throw error;
+
+            const cloudKeys = new Set((cloudRows || []).map(row => row.state_key));
+            const keys = (typeof APP_KEYS === 'object' ? Object.values(APP_KEYS) : []);
+            let migrated = 0;
+            for (const key of keys) {
+                if (cloudKeys.has(key)) continue;
+                const raw = localStorage.getItem(key);
+                if (raw === null) continue;
+                try {
+                    await fitpulsePushState(key, JSON.parse(raw));
+                    migrated++;
+                } catch (e) {
+                    console.warn('[Supabase] Migrasi dilewati:', key, e);
+                }
+            }
+            if (migrated) fitpulseSetCloudStatus(`☁️ ${migrated} data lama berhasil dicadangkan ke Supabase`, 'success');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Main app initialization is already handled by the existing code.
+            // Run cloud initialization after that so existing UI behavior is preserved.
+            setTimeout(initializeFitPulseSupabase, 0);
+        });
+    </script>
+
+    <script>
+        /* ==========================================================================\n           1. EXERCISE DATABASE (80+ Gerakan dengan Data Lengkap, MET & Tips Form)
            ========================================================================== */
         const EXERCISE_DATABASE = {
           "chest": [
@@ -4334,6 +4506,11 @@
         function saveJSON(key, val) {
             try {
                 localStorage.setItem(key, JSON.stringify(val));
+                // Keep localStorage as the fast/offline cache, while Supabase
+                // receives the same state when cloud sync is ready.
+                if (window.FITPULSE_SUPABASE_READY) {
+                    window.FITPULSE_SUPABASE_QUEUE(key, val);
+                }
                 return true;
             } catch (e) {
                 console.error('Storage write error:', e);
@@ -6080,7 +6257,7 @@
                 return Math.round((scheduleScore / fallback) * 100);
             });
 
-            new Chart(ctx, {
+            muscleChartInstance = new Chart(ctx, {
                 type: 'radar',
                 data: {
                     labels: Object.values(groups).map(x => x[0]),
