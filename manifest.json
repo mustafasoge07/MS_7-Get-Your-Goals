@@ -1,0 +1,24 @@
+{
+  "name": "Get Your Goals by MS7",
+  "short_name": "MS7 Gym",
+  "description": "Fitness tracker untuk latihan, nutrisi, progres, dan target kebugaran.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#060911",
+  "theme_color": "#060911",
+  "orientation": "any",
+  "icons": [{
+    "src": "https://dcpmtwbyp7.ufs.sh/f/75hB4NpFqzBxsxEVn1JVo68GkjqyRveMzOXFPaTi5JHNKfwd",
+    "sizes": "192x192",
+    "type": "image/png",
+    "purpose": "any"
+  },
+  {
+    "src": "https://dcpmtwbyp7.ufs.sh/f/75hB4NpFqzBxs6WacPJVo68GkjqyRveMzOXFPaTi5JHNKfwd",
+    "sizes": "512x512",
+    "type": "image/png",
+    "purpose": "any"
+  }
+]
+}
