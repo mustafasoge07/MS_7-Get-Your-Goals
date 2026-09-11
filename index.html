@@ -1743,7 +1743,135 @@
             --gradient-brand:linear-gradient(135deg,#ef4444 0%,#f43f5e 55%,#a855f7 100%);
             --gradient-accent:linear-gradient(135deg,#dc2626,#f43f5e);
         }
-    </style>
+    
+/* === iPHONE FINAL LAYOUT SAFETY PATCH === */
+@media (max-width: 768px) {
+    html, body {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    body {
+        display: block !important;
+        padding-bottom: calc(92px + env(safe-area-inset-bottom)) !important;
+    }
+
+    .main-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        padding-bottom: calc(110px + env(safe-area-inset-bottom)) !important;
+    }
+
+    /* Bottom navigation: fixed, opaque, scrollable, never floating over content */
+    .mobile-bottom-nav {
+        position: fixed !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        top: auto !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: calc(72px + env(safe-area-inset-bottom)) !important;
+        min-height: calc(72px + env(safe-area-inset-bottom)) !important;
+        box-sizing: border-box !important;
+        padding: 6px 8px env(safe-area-inset-bottom) !important;
+        margin: 0 !important;
+
+        display: flex !important;
+        align-items: flex-start !important;
+        justify-content: flex-start !important;
+        gap: 5px !important;
+
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
+        touch-action: pan-x !important;
+        overscroll-behavior-x: contain !important;
+        scrollbar-width: none !important;
+
+        background: rgba(8, 13, 24, 0.985) !important;
+        border-top: 1px solid rgba(255,255,255,.10) !important;
+        backdrop-filter: blur(18px) !important;
+        -webkit-backdrop-filter: blur(18px) !important;
+        box-shadow: 0 -10px 30px rgba(0,0,0,.35) !important;
+
+        z-index: 10000 !important;
+        isolation: isolate !important;
+    }
+
+    .mobile-bottom-nav::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+    }
+
+    .mobile-nav-item {
+        position: relative !important;
+        flex: 0 0 78px !important;
+        width: 78px !important;
+        min-width: 78px !important;
+        max-width: 78px !important;
+        height: 58px !important;
+        min-height: 58px !important;
+        margin: 0 !important;
+        padding: 4px 3px !important;
+        border-radius: 10px !important;
+        box-sizing: border-box !important;
+        flex-shrink: 0 !important;
+    }
+
+    /* Music widget: permanently above the bottom nav */
+    .music-widget {
+        position: fixed !important;
+        left: 10px !important;
+        right: 10px !important;
+        bottom: calc(82px + env(safe-area-inset-bottom)) !important;
+        width: auto !important;
+        max-width: none !important;
+        box-sizing: border-box !important;
+        z-index: 9000 !important;
+    }
+
+    .music-widget.minimized {
+        left: auto !important;
+        right: 10px !important;
+        width: auto !important;
+        max-width: calc(100vw - 20px) !important;
+    }
+
+    /* Keep toast above everything */
+    #toast-container {
+        z-index: 20000 !important;
+        bottom: calc(82px + env(safe-area-inset-bottom)) !important;
+        top: auto !important;
+    }
+
+    /* Don't let full-screen/modal layers accidentally inherit the nav stacking */
+    .modal-overlay {
+        z-index: 15000 !important;
+    }
+}
+
+@media (max-width: 380px) {
+    .mobile-bottom-nav {
+        padding-left: 5px !important;
+        padding-right: 5px !important;
+        gap: 4px !important;
+    }
+
+    .mobile-nav-item {
+        flex-basis: 72px !important;
+        width: 72px !important;
+        min-width: 72px !important;
+        max-width: 72px !important;
+        font-size: .54rem !important;
+    }
+}
+
+</style>
 </head>
 
 <body>
