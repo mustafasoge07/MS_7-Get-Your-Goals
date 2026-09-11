@@ -4303,7 +4303,7 @@
 
         // Audio Playlist State
         const MUSIC_TRACKS = [
-            { title: "Green Day - American Idiot", src: "https://dcpmtwbyp7.ufs.sh/f/75hB4NpFqzBxFvV5TGPZqPT0IzwUDa6lXmSkxeoBG1gs794V" },
+             { title: "Green Day - American Idiot", src: "https://dcpmtwbyp7.ufs.sh/f/75hB4NpFqzBxFvV5TGPZqPT0IzwUDa6lXmSkxeoBG1gs794V" },
             { title: "Justin Bieber - Off My Face", src: "https://dcpmtwbyp7.ufs.sh/f/75hB4NpFqzBxbclz9ZszxJDoBIhW0jKP5v4SRATMmU3H9wGX" },
             { title: "Maroon 5 - Won't Go Home Without You", src: "https://dcpmtwbyp7.ufs.sh/f/75hB4NpFqzBxWEZiZDytVBqPkMfeycZ0uOnwCQ5L471Xjo3W" },
             { title: "My Chemical Romance - I Don't Love You", src: "https://dcpmtwbyp7.ufs.sh/f/75hB4NpFqzBxACqDxqtHO4joK6trvEITMe1pgFzaf7qdkxwG" },
@@ -6898,6 +6898,30 @@
 #hud-exercise-visual .ms7-media-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:.85rem;background:#080d16;z-index:1;}
 #hud-exercise-visual .ms7-media-loading.hidden{display:none;}
 @media(max-width:768px){#hud-exercise-visual.ms7-media-frame{height:260px!important;}}
+
+/* === iPHONE MUSIC MINIMIZED SAFE POSITION === */
+@media (max-width: 768px) {
+    .music-widget.minimized {
+        position: fixed !important;
+        bottom: calc(86px + env(safe-area-inset-bottom)) !important;
+        right: 10px !important;
+        left: auto !important;
+        width: auto !important;
+        max-width: calc(100vw - 20px) !important;
+        z-index: 12000 !important;
+    }
+    .music-widget.minimized .music-header {
+        margin-bottom: 0 !important;
+    }
+}
+@media (max-width: 380px) {
+    .music-widget.minimized {
+        bottom: calc(84px + env(safe-area-inset-bottom)) !important;
+        right: 8px !important;
+        max-width: calc(100vw - 16px) !important;
+    }
+}
+
 </style>
 <script id="ms7-exercise-media-patch">
 (function(){
