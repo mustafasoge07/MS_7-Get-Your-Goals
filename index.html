@@ -1905,7 +1905,7 @@
 <body>
 
     <!-- MS7 PERMANENT ACCOUNT GATE -->
-    <div id="ms7-auth-gate" class="ms7-auth-gate">
+    <div id="ms7-auth-gate" class="ms7-auth-gate" data-auth-version="permanent-v2">
         <div class="ms7-auth-card">
             <div class="ms7-auth-brand">
                 <div class="ms7-auth-logo">MS7</div>
@@ -2021,7 +2021,7 @@
 
         <!-- Sidebar User Footer -->
         <div class="sidebar-footer">
-            <button id="ms7-logout-btn" class="ms7-logout-btn" type="button" title="Keluar dari akun">Keluar</button>
+            <button id="ms7-logout-btn" class="ms7-logout-btn" data-ms7-logout type="button" title="Keluar dari akun">🚪 Keluar akun</button>
             <div class="user-mini-profile">
                 <div class="avatar-circle" id="side-avatar-initial">AL</div>
                 <div class="user-meta-info">
@@ -2776,6 +2776,14 @@
                     </div>
                 </div>
 
+                <div id="ms7-account-panel" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 14px;margin:0 0 16px;border:1px solid rgba(6,182,212,.22);border-radius:12px;background:rgba(6,182,212,.06);">
+                    <div>
+                        <div style="font-size:.72rem;color:var(--text-muted);font-weight:700;">AKUN MS7 AKTIF</div>
+                        <div id="ms7-account-username" style="font-weight:900;margin-top:3px;">Memuat akun...</div>
+                    </div>
+                    <button class="ms7-logout-btn" data-ms7-logout type="button" title="Keluar dari akun">🚪 Logout</button>
+                </div>
+
                 <form id="profile-form">
                     <div class="form-group">
                         <label for="prof-name">Nama Lengkap / Panggilan:</label>
@@ -3037,7 +3045,21 @@
         async function fitpulseEnsureAuth() {
             const { data: sessionData, error: sessionError } = await fitpulseSupabase.auth.getSession();
             if (sessionError) throw sessionError;
-            return sessionData?.session?.user || null;
+
+            const user = sessionData?.session?.user || null;
+            if (!user) return null;
+
+            // Jangan biarkan anonymous session lama melewati halaman Login.
+            // Versi sebelumnya pernah memakai Anonymous Auth, sehingga session
+            // tersebut bisa masih tersimpan di browser/localStorage.
+            const isAnonymous = user.is_anonymous === true || !user.email;
+            if (isAnonymous) {
+                console.info('[Supabase] Anonymous session lama ditemukan. Logout otomatis.');
+                await fitpulseSupabase.auth.signOut();
+                return null;
+            }
+
+            return user;
         }
 
         async function fitpulsePullCloudState() {
@@ -3171,6 +3193,14 @@
         }
 
         async function fitpulseLoadSignedInUser(user) {
+            const accountNameEl = document.getElementById('ms7-account-username');
+            if (accountNameEl) {
+                const email = String(user?.email || '');
+                accountNameEl.textContent = email.endsWith('@ms7.com')
+                    ? '@' + email.replace('@ms7.com', '')
+                    : (email || 'Akun MS7');
+            }
+
             if (!user) return;
             window.FITPULSE_SUPABASE_USER = user;
             window.FITPULSE_SUPABASE_READY = false;
@@ -3288,16 +3318,26 @@
                 }
             });
 
-            document.getElementById('ms7-logout-btn')?.addEventListener('click', async () => {
-                fitpulseSetCloudStatus('🔐 Keluar dari akun...');
-                await fitpulseSupabase.auth.signOut();
-                window.FITPULSE_SUPABASE_USER = null;
-                window.FITPULSE_SUPABASE_READY = false;
-                fitpulseClearUserCache();
-                fitpulseRedrawApp();
-                fitpulseShowAuthGate(true);
-                fitpulseSetCloudStatus('🔐 Silakan login', 'info');
-                fitpulseAuthMessage('Kamu sudah keluar. Login kembali untuk memuat data cloud.');
+            document.querySelectorAll('[data-ms7-logout]').forEach((btn) => {
+                btn.addEventListener('click', async () => {
+                    const ok = window.confirm('Keluar dari akun MS7 sekarang?');
+                    if (!ok) return;
+
+                    try {
+                        fitpulseSetCloudStatus('🔐 Keluar dari akun...');
+                        await fitpulseSupabase.auth.signOut();
+                    } catch (e) {
+                        console.warn('[Supabase] Logout warning:', e);
+                    }
+
+                    window.FITPULSE_SUPABASE_USER = null;
+                    window.FITPULSE_SUPABASE_READY = false;
+                    fitpulseClearUserCache();
+                    fitpulseRedrawApp();
+                    fitpulseShowAuthGate(true);
+                    fitpulseSetCloudStatus('🔐 Silakan login', 'info');
+                    fitpulseAuthMessage('Kamu sudah keluar. Login kembali untuk memuat data cloud.');
+                });
             });
         });
 
