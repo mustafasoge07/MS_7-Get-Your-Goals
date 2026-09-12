@@ -5,11 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#060911">
+    <meta name="description" content="Get Your Goals by MS7 — workout planner, live workout tracker, nutrition, dan evaluasi progres.">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="https://dcpmtwbyp7.ufs.sh/f/75hB4NpFqzBxs6WacPJVo68GkjqyRveMzOXFPaTi5JHNKfwd">
-    <title>Get Your Goals by MS7 - Fitness & Gym Tracker</title>
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <title>Get Your Goals by MS7 - Final</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -2007,7 +2008,7 @@
                     <span class="nav-btn-icon">📊</span>
                     <span>Evaluasi & Grafik</span>
                 </div>
-                <span class="nav-badge" style="color:var(--lime-neon);">AI Coach</span>
+                <span class="nav-badge" style="color:var(--lime-neon);">Smart Coach</span>
             </button>
 
             <button type="button" class="nav-btn" data-tab="biodata">
@@ -2038,7 +2039,7 @@
         <button type="button" class="mobile-nav-item" data-tab="biodata">
             <span class="icon">⚙️</span>
             <span>Profil</span>
-            <span id="lock-icon-bio">🔒</span>
+            <span id="lock-icon-bio-mobile">🔒</span>
         </button>
         <button type="button" class="mobile-nav-item active" data-tab="home">
             <span class="icon">🏠</span>
@@ -2303,16 +2304,21 @@
                     </div>
                 </div>
 
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0;">
+                <div class="ms7-set-entry-grid">
                     <div>
                         <label for="hud-weight-input" style="font-size:.78rem;">Beban Set Ini (kg)</label>
                         <input type="number" id="hud-weight-input" min="0" step="0.5" value="0" inputmode="decimal" oninput="updateExerciseLoadUI()">
                         <small id="hud-weight-limit" style="display:block;font-size:.68rem;color:var(--text-muted);margin-top:4px;">Batas beban mengikuti level profil.</small>
                     </div>
-                    <div style="display:flex;align-items:flex-end;">
-                        <div style="width:100%;padding:10px;border:1px solid var(--border-subtle);border-radius:var(--radius-md);background:rgba(6,9,17,.5);font-size:.72rem;color:var(--text-muted);">
-                            🏆 <strong style="color:var(--amber-fire);">PR</strong> tercatat otomatis jika beban baru melampaui rekor gerakan.
-                        </div>
+                    <div>
+                        <label for="hud-reps-input" style="font-size:.78rem;">Repetisi Aktual</label>
+                        <input type="number" id="hud-reps-input" min="1" max="100" step="1" value="10" inputmode="numeric">
+                        <small style="display:block;font-size:.68rem;color:var(--text-muted);margin-top:4px;">Catat repetisi yang benar-benar selesai.</small>
+                    </div>
+                    <div>
+                        <label for="hud-rir-input" style="font-size:.78rem;">RIR Aktual</label>
+                        <input type="number" id="hud-rir-input" min="0" max="5" step="1" value="2" inputmode="numeric">
+                        <small style="display:block;font-size:.68rem;color:var(--text-muted);margin-top:4px;">Sisa repetisi sebelum gagal: 0–5.</small>
                     </div>
                 </div>
 
@@ -2749,7 +2755,7 @@
                     </div>
                 </div>
 
-                <!-- Smart AI Coach Analysis Card -->
+                <!-- Smart Coach Analysis Card -->
                 <div class="card" style="border-color:rgba(6, 182, 212, 0.4);">
                     <div class="card-header">
                         <div>
@@ -4821,16 +4827,21 @@
             const exName = activeWorkoutSession.playlist[activeWorkoutSession.exerciseIndex];
             const ex = findExerciseInDB(exName);
             const max = getExerciseLoadLimit(ex, bio.level || 'Beginner');
+            const previous = typeof getExerciseHistoryFlat === 'function'
+                ? getExerciseHistoryFlat().filter(row => row.name === exName).slice(-1)[0]
+                : null;
             input.max = max;
             if (ex?.equipment === 'Bodyweight') {
                 input.value = 0;
                 input.disabled = true;
-                if (hint) hint.textContent = 'Bodyweight • beban eksternal 0 kg';
+                if (hint) hint.textContent = previous
+                    ? `Bodyweight • terakhir ${previous.reps || '-'} reps pada ${previous.date}`
+                    : 'Bodyweight • beban eksternal 0 kg';
             } else {
                 input.disabled = false;
                 const current = Number(input.value);
                 if (current > max) input.value = max;
-                if (hint) hint.textContent = `Batas level ${bio.level}: ${max} kg • PR: ${getExercisePR(exName) || 0} kg`;
+                if (hint) hint.textContent = `Terakhir: ${previous ? `${previous.weight} kg × ${previous.reps}` : 'belum ada'} • PR: ${getExercisePR(exName) || 0} kg • Batas ${max} kg`;
             }
         }
 
@@ -5033,7 +5044,7 @@
                 programs: ['Paket Program Latihan', 'Program latihan terstruktur yang disesuaikan dengan level kebugaran Anda.'],
                 schedule: ['Jadwal Latihan Mingguan', 'Sinkronisasi hari latihan, aktif recovery, dan istirahat.'],
                 nutrition: ['Nutrisi & Makronutrisi', 'Target kalori, hidrasi harian, dan panduan sumber protein ekonomis.'],
-                progress: ['Evaluasi & Grafik Progress', 'Analisis komprehensif, multi-chart tren BB, dan saran cerdas dari AI Coach.'],
+                progress: ['Evaluasi & Grafik Progress', 'Analisis komprehensif, multi-chart tren BB, dan saran berbasis data dari Smart Coach.'],
                 biodata: ['Konfigurasi Profil', 'Perbarui data berat badan, usia, target, dan kondisi fisik.']
             };
 
@@ -5296,6 +5307,7 @@
             activeWorkoutSession = {
                 running: true,
                 playlist: dayPlan.ex.slice(),
+                exerciseSettings: dayPlan.exerciseSettings || {},
                 exerciseIndex: 0,
                 setIndex: 1,
                 setsTotal: bio.level === 'Advanced' ? 4 : 3,
@@ -5352,20 +5364,36 @@
             if (!activeWorkoutSession.running || !activeWorkoutSession.playlist.length) return;
             const exName = activeWorkoutSession.playlist[activeWorkoutSession.exerciseIndex];
             const ex = findExerciseInDB(exName);
+            const exerciseConfig = activeWorkoutSession.exerciseSettings?.[exName] || null;
+            if (exerciseConfig) {
+                activeWorkoutSession.setsTotal = Math.max(1, Number(exerciseConfig.sets) || 3);
+                activeWorkoutSession.repsMin = Math.max(1, Number(exerciseConfig.repsMin) || 10);
+                activeWorkoutSession.repsMax = Math.max(activeWorkoutSession.repsMin, Number(exerciseConfig.repsMax) || activeWorkoutSession.repsMin);
+                activeWorkoutSession.restSeconds = Math.max(15, Number(exerciseConfig.restSeconds) || 60);
+            }
 
             document.getElementById('hud-exercise-name').textContent = ex.name;
             document.getElementById('hud-exercise-sub').textContent = `Gerakan ${activeWorkoutSession.exerciseIndex + 1} dari ${activeWorkoutSession.playlist.length} • Kategori: ${ex.category}`;
             document.getElementById('hud-met-tag').textContent = `Formula MET: ${ex.met || 5.0} • Target ${ex.equipment}`;
             document.getElementById('hud-set-val').textContent = `Set ${activeWorkoutSession.setIndex} / ${activeWorkoutSession.setsTotal}`;
-            document.getElementById('hud-reps-target').textContent = `Target: ${activeWorkoutSession.repsMin}-${activeWorkoutSession.repsMax} Reps`;
+            const targetRir = exerciseConfig ? Math.max(0, Number(exerciseConfig.rir) || 0) : 2;
+            document.getElementById('hud-reps-target').textContent = `Target: ${activeWorkoutSession.repsMin}-${activeWorkoutSession.repsMax} Reps • RIR ${targetRir}`;
+            const repsInput = document.getElementById('hud-reps-input');
+            const rirInput = document.getElementById('hud-rir-input');
+            if (repsInput && document.activeElement !== repsInput) repsInput.value = Math.round((activeWorkoutSession.repsMin + activeWorkoutSession.repsMax) / 2);
+            if (rirInput && document.activeElement !== rirInput) rirInput.value = targetRir;
 
             const completeBtn = document.getElementById('hud-complete-set-btn');
             if (completeBtn) completeBtn.innerHTML = `<span>✓</span> Selesaikan Set ${activeWorkoutSession.setIndex}`;
             updateExerciseLoadUI();
 
             // Progress Bar
-            const totalSetsOverall = activeWorkoutSession.playlist.length * activeWorkoutSession.setsTotal;
-            const completedSetsCount = (activeWorkoutSession.exerciseIndex * activeWorkoutSession.setsTotal) + (activeWorkoutSession.setIndex - 1);
+            const settings = activeWorkoutSession.exerciseSettings || {};
+            const getSets = name => Math.max(1, Number(settings[name]?.sets) || activeWorkoutSession.setsTotal || 3);
+            const totalSetsOverall = activeWorkoutSession.playlist.reduce((sum, name) => sum + getSets(name), 0);
+            const completedSetsCount = activeWorkoutSession.playlist
+                .slice(0, activeWorkoutSession.exerciseIndex)
+                .reduce((sum, name) => sum + getSets(name), 0) + (activeWorkoutSession.setIndex - 1);
             const pct = Math.min(100, Math.round((completedSetsCount / totalSetsOverall) * 100));
             const fill = document.getElementById('hud-progress-fill');
             if (fill) fill.style.width = `${pct}%`;
@@ -5385,7 +5413,8 @@
                 showToast(`⚠️ Beban melebihi batas level Anda (${maxLoad} kg).`, 'warning');
                 return;
             }
-            const reps = Math.round((activeWorkoutSession.repsMin + activeWorkoutSession.repsMax) / 2);
+            const reps = Math.max(1, Math.min(100, Math.round(Number(document.getElementById('hud-reps-input')?.value) || Math.round((activeWorkoutSession.repsMin + activeWorkoutSession.repsMax) / 2))));
+            const rir = Math.max(0, Math.min(5, Math.round(Number(document.getElementById('hud-rir-input')?.value) || 0)));
             activeWorkoutSession.currentWeightKg = weightKg;
             activeWorkoutSession.volumeLiftedKg += weightKg * reps;
             activeWorkoutSession.setLogs = Array.isArray(activeWorkoutSession.setLogs) ? activeWorkoutSession.setLogs : [];
@@ -5395,6 +5424,7 @@
                 set: activeWorkoutSession.setIndex,
                 weightKg,
                 reps,
+                rir,
                 date: getLocalDateKey(),
                 timestamp: new Date().toISOString()
             });
@@ -5410,14 +5440,19 @@
 
             // If more sets remain in this exercise
             if (activeWorkoutSession.setIndex < activeWorkoutSession.setsTotal) {
+                activeWorkoutSession.pendingSetAdvance = true;
                 startRestTimerHUD(activeWorkoutSession.restSeconds);
             } else {
                 // Exercise finished! Move to next
                 if (activeWorkoutSession.exerciseIndex < activeWorkoutSession.playlist.length - 1) {
                     activeWorkoutSession.exerciseIndex++;
                     activeWorkoutSession.setIndex = 1;
+                    activeWorkoutSession.pendingSetAdvance = false;
+                    const nextExerciseName = activeWorkoutSession.playlist[activeWorkoutSession.exerciseIndex];
+                    const nextExerciseConfig = activeWorkoutSession.exerciseSettings?.[nextExerciseName];
+                    activeWorkoutSession.restSeconds = Math.max(15, Number(nextExerciseConfig?.restSeconds) || activeWorkoutSession.restSeconds || 60);
                     showToast(`Gerakan tuntas! Lanjut ke gerakan #${activeWorkoutSession.exerciseIndex + 1}`, 'info');
-                    startRestTimerHUD(activeWorkoutSession.restSeconds + 30); // Longer rest between exercises
+                    startRestTimerHUD(activeWorkoutSession.restSeconds);
                 } else {
                     // Whole workout complete!
                     finishWorkoutSession();
@@ -5473,6 +5508,7 @@
 
         function skipToNextSet() {
             if (!activeWorkoutSession.running) return;
+            activeWorkoutSession.pendingSetAdvance = null;
             if (activeWorkoutSession.restInterval) clearInterval(activeWorkoutSession.restInterval);
             document.getElementById('hud-rest-banner').style.display = 'none';
             document.getElementById('hud-complete-set-btn').disabled = false;
@@ -5487,6 +5523,7 @@
 
         function skipToNextExercise() {
             if (!activeWorkoutSession.running) return;
+            activeWorkoutSession.pendingSetAdvance = null;
             if (activeWorkoutSession.restInterval) clearInterval(activeWorkoutSession.restInterval);
             document.getElementById('hud-rest-banner').style.display = 'none';
             document.getElementById('hud-complete-set-btn').disabled = false;
@@ -5688,6 +5725,9 @@
             activeWorkoutSession = {
                 running: true,
                 playlist: [currentlyViewedExercise.name],
+                exerciseSettings: {
+                    [currentlyViewedExercise.name]: { sets: 3, repsMin: 10, repsMax: 12, restSeconds: 60, rir: 2 }
+                },
                 exerciseIndex: 0,
                 setIndex: 1,
                 setsTotal: 3,
@@ -5784,6 +5824,7 @@
             const labels = {
                 chest:'Dada', back:'Punggung', shoulders:'Bahu', legs:'Kaki',
                 arms:'Lengan', biceps:'Biceps', triceps:'Triceps', core:'Core',
+                abs_core:'Perut & Core', recovery_mobility:'Recovery & Mobilitas',
                 cardio:'Cardio', fullbody:'Full Body', recovery:'Recovery & Mobilitas'
             };
             return labels[group] || String(group).replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
@@ -5923,7 +5964,8 @@
                     if (sets.length) {
                         sets.forEach(st => byExercise[name].push({
                             date: session.date, set: st.set || 1, weightKg: Number(st.weightKg) || 0,
-                            reps: Number(st.reps) || 0, volume: Number(st.weightKg || 0) * Number(st.reps || 0)
+                            reps: Number(st.reps) || 0, rir: Number.isFinite(Number(st.rir)) ? Number(st.rir) : null,
+                            volume: Number(st.weightKg || 0) * Number(st.reps || 0)
                         }));
                     } else {
                         byExercise[name].push({
@@ -5950,7 +5992,7 @@
                     </div>
                     <div class="load-history-row"><span class="load-history-muted">Terakhir</span><strong>${last.weightKg} kg × ${last.reps || '-'} • ${last.date}</strong></div>
                     <div style="margin-top:7px;font-size:.68rem;color:var(--cyan-bright);font-weight:700;">RIWAYAT SET</div>
-                    ${rows.map(x => `<div class="load-history-row"><span>${x.date} • Set ${x.set}</span><span><strong>${x.weightKg} kg</strong>${x.reps ? ` × ${x.reps}` : ''}</span></div>`).join('')}
+                    ${rows.map(x => `<div class="load-history-row"><span>${x.date} • Set ${x.set}${x.rir !== null ? ` • RIR ${x.rir}` : ''}</span><span><strong>${x.weightKg} kg</strong>${x.reps ? ` × ${x.reps}` : ''}</span></div>`).join('')}
                 </div>`;
             }).join('');
         }
@@ -6112,9 +6154,12 @@
             const program = PROGRAM_PRESETS[bio?.level || 'Beginner'] || PROGRAM_PRESETS.Beginner;
             const customSched = loadJSON(APP_KEYS.CUSTOM_SCHED, {});
             const plan = customSched[dayName] || program.days[dayName] || { focus: "Rest Day", ex: [] };
+            const planSettings = plan.exerciseSettings || {};
+            const defaultSets = bio?.level === 'Advanced' ? 4 : (bio?.level === 'Intermediate' ? 4 : 3);
+            const configuredSets = (plan.ex || []).reduce((sum, name) => sum + (Number(planSettings[name]?.sets) || defaultSets), 0);
 
             document.getElementById('session-day-heading').textContent = `Sesi Hari Ini (${dayName}): ${plan.focus}`;
-            document.getElementById('session-day-sub').textContent = `${plan.ex.length} gerakan terprogram • ${program.sets} • Rest ${program.restSec}s`;
+            document.getElementById('session-day-sub').textContent = `${plan.ex.length} gerakan • ${configuredSets} total working set • Detail set/reps/rest per gerakan`;
 
             if (!plan.ex.length) {
                 container.innerHTML = `<div style="padding:24px; text-align:center; color:var(--text-muted);">
@@ -6125,6 +6170,13 @@
 
             plan.ex.forEach((exName, idx) => {
                 const ex = findExerciseInDB(exName);
+                const cfg = planSettings[exName] || {
+                    sets: defaultSets,
+                    repsMin: bio?.level === 'Advanced' ? 6 : (bio?.level === 'Intermediate' ? 8 : 10),
+                    repsMax: bio?.level === 'Advanced' ? 8 : (bio?.level === 'Intermediate' ? 10 : 12),
+                    restSeconds: program.restSec || 60,
+                    rir: bio?.level === 'Advanced' ? 1 : 2
+                };
                 const item = document.createElement('div');
                 item.style.background = 'rgba(6, 9, 17, 0.6)';
                 item.style.border = '1px solid var(--border-subtle)';
@@ -6139,7 +6191,7 @@
                         <span class="step-num">${idx + 1}</span>
                         <div>
                             <h5 style="font-size:0.9rem; font-weight:700; color:var(--text-main);">${ex.name}</h5>
-                            <span style="font-size:0.72rem; color:var(--text-muted);">MET: ${ex.met || 5.0} • Kategori: ${ex.category}</span>
+                            <span style="font-size:0.72rem; color:var(--text-muted);">${cfg.sets} set × ${cfg.repsMin}-${cfg.repsMax} reps • Rest ${cfg.restSeconds}s • RIR ${cfg.rir}</span>
                         </div>
                     </div>
                     <button type="button" class="btn-secondary" style="padding:6px 12px; font-size:0.75rem;" onclick="openExerciseDetailModal(findExerciseInDB('${ex.name}'))">
@@ -6170,6 +6222,7 @@
             activeWorkoutSession = {
                 running: true,
                 playlist: plan.ex.slice(),
+                exerciseSettings: plan.exerciseSettings || {},
                 exerciseIndex: 0,
                 setIndex: 1,
                 setsTotal: bio.level === 'Advanced' ? 4 : 3,
@@ -6374,7 +6427,7 @@
             renderWeightTrajectoryChart(bio, weeklyLogs);
             renderMuscleDistributionChart();
 
-            // Smart AI Coach Diagnosis
+            // Smart Coach Diagnosis
             renderAICoachReport(bio, currentWeight, weeklyLogs, dailyLogs, workoutHistory);
         }
 
@@ -6437,69 +6490,80 @@
             const ctx = canvas.getContext('2d');
             if (muscleChartInstance) muscleChartInstance.destroy();
 
-            const groups = {
-                chest: ['Dada (Chest)', /chest|dada/i],
-                back: ['Punggung (Back)', /back|punggung|lat|row|deadlift/i],
-                shoulders: ['Bahu (Shoulders)', /shoulder|bahu|delt/i],
-                arms: ['Tangan (Arms)', /biceps|triceps|arms|bisep|trisep/i],
-                legs: ['Kaki (Legs)', /legs|quads|hamstring|glutes|squat|kaki/i],
-                core: ['Perut & Core', /abs|core|plank|perut/i]
+            const groupLabels = {
+                chest: 'Dada (Chest)',
+                back: 'Punggung (Back)',
+                shoulders: 'Bahu (Shoulders)',
+                arms: 'Lengan (Arms)',
+                legs: 'Kaki (Legs)',
+                core: 'Perut & Core'
             };
-            const score = { chest:0, back:0, shoulders:0, arms:0, legs:0, core:0 };
-            const scheduledSets = { ...score };
+            const blank = () => ({ chest:0, back:0, shoulders:0, arms:0, legs:0, core:0 });
+            const plannedSets = blank();
+            const performedSets = blank();
 
-            const { plan, program } = getTodaySchedule(bio || {});
-            const custom = loadJSON(APP_KEYS.CUSTOM_SCHED, {});
-            const schedule = custom || {};
-            const allPlans = Object.values(schedule).length ? schedule : (program?.days || {});
-            Object.values(allPlans).forEach(day => {
-                (day?.ex || []).forEach(name => {
-                    const ex = findExerciseInDB(name);
-                    const text = `${ex.category} ${ex.name}`;
-                    Object.keys(groups).forEach(k => {
-                        if (groups[k][1].test(text)) scheduledSets[k] += (program?.sets?.startsWith('4') ? 4 : 3);
-                    });
+            const resolveGroup = exerciseName => {
+                const target = String(exerciseName || '').toLowerCase();
+                for (const [dbGroup, exercises] of Object.entries(EXERCISE_DATABASE || {})) {
+                    if ((exercises || []).some(ex => String(ex.name).toLowerCase() === target)) {
+                        if (dbGroup === 'biceps' || dbGroup === 'triceps') return 'arms';
+                        if (dbGroup === 'abs_core') return 'core';
+                        return Object.prototype.hasOwnProperty.call(groupLabels, dbGroup) ? dbGroup : null;
+                    }
+                }
+                return null;
+            };
+
+            const profile = bio || {};
+            const program = PROGRAM_PRESETS[profile.level || 'Beginner'] || PROGRAM_PRESETS.Beginner;
+            const custom = loadJSON(APP_KEYS.CUSTOM_SCHED, {}) || {};
+            const dayNames = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'];
+            const fallbackSets = profile.level === 'Advanced' ? 4 : (profile.level === 'Intermediate' ? 4 : 3);
+
+            dayNames.forEach(dayName => {
+                const day = custom[dayName] || program.days?.[dayName] || { ex:[] };
+                (day.ex || []).forEach(name => {
+                    const group = resolveGroup(name);
+                    if (!group) return;
+                    plannedSets[group] += Math.max(1, Number(day.exerciseSettings?.[name]?.sets) || fallbackSets);
                 });
             });
-            // Jika tidak ada jadwal kustom, gunakan program penuh.
-            if (!Object.values(allPlans).length) {
-                Object.values(program?.days || {}).forEach(day => (day?.ex || []).forEach(name => {
-                    const ex = findExerciseInDB(name), text = `${ex.category} ${ex.name}`;
-                    Object.keys(groups).forEach(k => { if (groups[k][1].test(text)) scheduledSets[k] += 3; });
-                }));
-            }
 
+            const cutoff = new Date();
+            cutoff.setHours(0,0,0,0);
+            cutoff.setDate(cutoff.getDate() - 6);
             const history = loadJSON(APP_KEYS.WORKOUT_HISTORY, []);
-            history.forEach(w => {
-                (w.exerciseDetails || []).forEach(e => {
-                    const ex = findExerciseInDB(e.name || e);
-                    const text = `${ex.category} ${ex.name}`;
-                    Object.keys(groups).forEach(k => {
-                        if (groups[k][1].test(text)) score[k] += Number(e.sets || 0) * Number(e.weightKg || 0);
-                    });
+            history.forEach(session => {
+                const sessionDate = new Date(`${session.date || ''}T00:00:00`);
+                if (!Number.isFinite(sessionDate.getTime()) || sessionDate < cutoff) return;
+                (session.exerciseDetails || []).forEach(detail => {
+                    const group = resolveGroup(detail.name || detail);
+                    if (!group) return;
+                    const completed = Array.isArray(detail.sets)
+                        ? detail.sets.length
+                        : Math.max(0, Number(detail.setsCompleted || detail.sets) || 0);
+                    performedSets[group] += completed;
                 });
             });
 
-            const scheduledValues = Object.keys(groups).map(k => scheduledSets[k]);
-            const fallback = Math.max(1, ...scheduledValues);
-            const data = Object.keys(groups).map(k => {
-                const scheduleScore = scheduledSets[k] || 0;
-                const performed = score[k] || 0;
-                // Fokus utama radar: proporsi stimulus terhadap program, bukan angka hard-coded.
-                return Math.round((scheduleScore / fallback) * 100);
-            });
+            const hasActual = Object.values(performedSets).some(value => value > 0);
+            const sourceSets = hasActual ? performedSets : plannedSets;
+            const maximum = Math.max(1, ...Object.values(sourceSets));
+            const keys = Object.keys(groupLabels);
+            const data = keys.map(key => Math.round((sourceSets[key] / maximum) * 100));
+            const datasetLabel = hasActual ? 'Working Set Aktual • 7 Hari (%)' : 'Rencana Working Set Mingguan (%)';
 
             muscleChartInstance = new Chart(ctx, {
                 type: 'radar',
                 data: {
-                    labels: Object.values(groups).map(x => x[0]),
+                    labels: keys.map(key => groupLabels[key]),
                     datasets: [{
-                        label: 'Distribusi Stimulus Program (%)',
+                        label: datasetLabel,
                         data,
-                        backgroundColor: 'rgba(6, 182, 212, 0.25)',
-                        borderColor: '#06b6d4',
+                        backgroundColor: hasActual ? 'rgba(16,185,129,.22)' : 'rgba(6,182,212,.25)',
+                        borderColor: hasActual ? '#10b981' : '#06b6d4',
                         borderWidth: 2,
-                        pointBackgroundColor: '#06b6d4',
+                        pointBackgroundColor: hasActual ? '#34d399' : '#06b6d4',
                         pointBorderColor: '#fff'
                     }]
                 },
@@ -6508,10 +6572,9 @@
                     maintainAspectRatio: false,
                     plugins: {
                         legend: { labels: { color: '#cbd5e1', font: { family: 'Plus Jakarta Sans', size: 11 } } },
-                        tooltip: { callbacks: { afterBody: (items) => {
-                            const i = items?.[0]?.dataIndex;
-                            const key = Object.keys(groups)[i];
-                            return key ? `Volume program: ${scheduledSets[key] || 0} set` : '';
+                        tooltip: { callbacks: { afterBody: items => {
+                            const key = keys[items?.[0]?.dataIndex];
+                            return key ? `${hasActual ? 'Diselesaikan 7 hari' : 'Rencana mingguan'}: ${sourceSets[key]} set` : '';
                         }}}
                     },
                     scales: { r: {
@@ -7261,10 +7324,13 @@
                         if(navigator.vibrate) navigator.vibrate([120,80,180]);
                     }catch(e){}
 
-                    activeWorkoutSession.setIndex=Math.min(
-                        activeWorkoutSession.setsTotal,
-                        activeWorkoutSession.setIndex+1
-                    );
+                    if(activeWorkoutSession.pendingSetAdvance !== false){
+                        activeWorkoutSession.setIndex=Math.min(
+                            activeWorkoutSession.setsTotal,
+                            activeWorkoutSession.setIndex+1
+                        );
+                    }
+                    activeWorkoutSession.pendingSetAdvance=null;
                     renderLiveWorkoutHUD();
                     showToast('🔔 Waktu istirahat selesai — siap untuk set berikutnya!', 'success', 2200);
                 }
@@ -7398,6 +7464,475 @@
             if(btn) btn.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
         }, {passive:false});
     });
+    </script>
+
+    <!-- MS7 WORKOUT & SCHEDULE V2 -->
+    <style id="ms7-workout-schedule-v2-style">
+        .ms7-v2-kicker{font-size:.68rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--lime-neon);margin-bottom:5px}
+        .ms7-muscle-explorer{margin:14px 0 18px;padding:16px;border:1px solid rgba(6,182,212,.22);border-radius:var(--radius-lg);background:linear-gradient(145deg,rgba(6,182,212,.07),rgba(6,9,17,.68));overflow:hidden}
+        .ms7-muscle-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+        .ms7-muscle-head h4{font-size:1rem;color:var(--text-main);margin:0}
+        .ms7-muscle-head p{font-size:.72rem;color:var(--text-muted);margin-top:4px;max-width:680px;line-height:1.55}
+        .ms7-muscle-layout{display:grid;grid-template-columns:minmax(290px,.85fr) minmax(250px,1.15fr);gap:16px;align-items:stretch}
+        .ms7-body-pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+        .ms7-body-card{position:relative;display:flex;flex-direction:column;align-items:center;min-height:332px;padding:10px;border:1px solid rgba(148,163,184,.13);border-radius:16px;background:radial-gradient(circle at 50% 35%,rgba(6,182,212,.10),transparent 56%),#080d16}
+        .ms7-body-card small{font-size:.62rem;font-weight:900;letter-spacing:.12em;color:var(--text-muted);text-transform:uppercase}
+        .ms7-body-svg{width:100%;height:286px;overflow:visible;filter:drop-shadow(0 14px 16px rgba(0,0,0,.36))}
+        .ms7-body-base{fill:#263348;stroke:#718096;stroke-width:1.2}
+        .ms7-body-line{fill:none;stroke:#718096;stroke-width:1;opacity:.58}
+        .ms7-muscle-region{fill:#46566e;stroke:#91a1b8;stroke-width:.8;cursor:pointer;transition:fill .18s ease,filter .18s ease,opacity .18s ease;outline:none}
+        .ms7-muscle-region:hover,.ms7-muscle-region:focus{fill:#06b6d4;filter:drop-shadow(0 0 7px rgba(34,211,238,.72))}
+        .ms7-muscle-region.active{fill:#f43f5e;stroke:#fecdd3;filter:drop-shadow(0 0 8px rgba(244,63,94,.72))}
+        .ms7-muscle-menu{display:grid;grid-template-columns:repeat(2,minmax(120px,1fr));gap:8px;align-content:start}
+        .ms7-muscle-choice{border:1px solid var(--border-subtle);border-radius:12px;padding:10px 11px;background:rgba(255,255,255,.025);color:var(--text-secondary);cursor:pointer;text-align:left;transition:.18s ease;min-height:58px}
+        .ms7-muscle-choice:hover{border-color:rgba(6,182,212,.42);background:rgba(6,182,212,.08)}
+        .ms7-muscle-choice.active{border-color:rgba(244,63,94,.62);background:rgba(244,63,94,.11);box-shadow:0 0 0 1px rgba(244,63,94,.12) inset}
+        .ms7-muscle-choice strong{display:block;font-size:.77rem;color:var(--text-main)}
+        .ms7-muscle-choice span{display:block;font-size:.62rem;color:var(--text-muted);margin-top:3px;line-height:1.35}
+        .ms7-muscle-choice.active strong{color:#fda4af}
+        .ms7-muscle-actions{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap;margin-top:3px}
+        .ms7-muscle-actions button{flex:1;min-width:120px}
+
+        .manual-exercise-option{display:grid!important;grid-template-columns:auto 58px 1fr;align-items:center!important;min-height:76px;padding:8px!important}
+        .manual-exercise-option.selected{border-color:rgba(6,182,212,.48)!important;background:rgba(6,182,212,.09)!important}
+        .ms7-picker-thumb{width:58px;height:58px;border-radius:9px;overflow:hidden;background:#070b14;border:1px solid rgba(148,163,184,.14)}
+        .ms7-picker-thumb img{width:100%;height:100%;display:block;object-fit:contain}
+        .manual-exercise-option>span{margin-top:0!important}
+        .manual-exercise-option>span>span{line-height:1.35}
+        .ms7-selected-builder{margin-top:14px;padding-top:14px;border-top:1px solid var(--border-subtle)}
+        .ms7-builder-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:10px;flex-wrap:wrap}
+        .ms7-builder-head h5{font-size:.9rem;color:var(--text-main)}
+        .ms7-builder-head p{font-size:.68rem;color:var(--text-muted);margin-top:3px}
+        .ms7-builder-summary{display:flex;gap:6px;flex-wrap:wrap}
+        .ms7-builder-summary span{padding:5px 8px;border-radius:999px;background:rgba(6,182,212,.09);border:1px solid rgba(6,182,212,.2);font-size:.65rem;font-weight:800;color:var(--cyan-bright)}
+        .ms7-builder-list{display:flex;flex-direction:column;gap:8px}
+        .ms7-builder-empty{padding:18px;text-align:center;border:1px dashed rgba(148,163,184,.22);border-radius:12px;color:var(--text-muted);font-size:.75rem}
+        .ms7-builder-card{display:grid;grid-template-columns:28px 54px minmax(150px,1.25fr) repeat(5,minmax(68px,.52fr)) auto;gap:8px;align-items:center;padding:9px;border:1px solid rgba(148,163,184,.14);border-radius:13px;background:rgba(6,9,17,.72);transition:.18s ease}
+        .ms7-builder-card.drag-over{border-color:var(--cyan-glow);transform:translateY(2px)}
+        .ms7-drag-handle{font-size:1rem;color:var(--text-muted);cursor:grab;text-align:center;user-select:none}
+        .ms7-builder-thumb{width:54px;height:54px;border-radius:9px;overflow:hidden;background:#070b14}
+        .ms7-builder-thumb img{width:100%;height:100%;object-fit:contain;display:block}
+        .ms7-builder-name strong{display:block;font-size:.76rem;color:var(--text-main);line-height:1.3}
+        .ms7-builder-name span{display:block;font-size:.62rem;color:var(--text-muted);margin-top:3px}
+        .ms7-builder-field label{display:block;font-size:.57rem;color:var(--text-muted);font-weight:800;text-transform:uppercase;margin-bottom:3px}
+        .ms7-builder-field input{height:36px;padding:6px 7px;font-size:.74rem;text-align:center}
+        .ms7-builder-actions{display:flex;gap:4px}
+        .ms7-builder-actions button{width:32px;height:32px;padding:0;border-radius:8px;border:1px solid var(--border-subtle);background:rgba(255,255,255,.03);color:var(--text-secondary);cursor:pointer}
+        .ms7-builder-actions button:hover{border-color:var(--cyan-glow);color:var(--cyan-bright)}
+        .ms7-builder-actions .remove:hover{border-color:#fb7185;color:#fb7185}
+        .ms7-day-config-summary{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px}
+        .ms7-day-config-summary span{font-size:.61rem;padding:3px 6px;border-radius:999px;background:rgba(168,85,247,.10);border:1px solid rgba(168,85,247,.18);color:#c4b5fd}
+        .ms7-set-entry-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+
+        @media(max-width:1100px){
+            .ms7-muscle-layout{grid-template-columns:1fr}
+            .ms7-builder-card{grid-template-columns:28px 48px minmax(150px,1fr) repeat(3,minmax(65px,.55fr))}
+            .ms7-builder-field.rir,.ms7-builder-field.rest{grid-row:2}
+            .ms7-builder-actions{grid-row:2;grid-column:-2/-1}
+        }
+        @media(max-width:700px){
+            .ms7-muscle-explorer{padding:12px}
+            .ms7-body-card{min-height:292px}.ms7-body-svg{height:246px}
+            .ms7-muscle-menu{grid-template-columns:1fr 1fr}
+            .manual-exercise-option{grid-template-columns:auto 50px 1fr}.ms7-picker-thumb{width:50px;height:50px}
+            .ms7-builder-card{grid-template-columns:24px 46px 1fr auto;padding:8px}
+            .ms7-builder-thumb{width:46px;height:46px}
+            .ms7-builder-field{grid-column:span 2}.ms7-builder-field.sets{grid-column:1/3}.ms7-builder-field.reps-min{grid-column:3/5}
+            .ms7-builder-field.reps-max{grid-column:1/3}.ms7-builder-field.rest{grid-column:3/5;grid-row:auto}.ms7-builder-field.rir{grid-column:1/3;grid-row:auto}
+            .ms7-builder-actions{grid-column:3/5;grid-row:auto;justify-content:flex-end}
+            .ms7-set-entry-grid{grid-template-columns:1fr}
+        }
+        @media(max-width:430px){.ms7-body-pair{gap:6px}.ms7-body-card{padding:7px;min-height:270px}.ms7-body-svg{height:226px}.ms7-muscle-choice{padding:8px;min-height:54px}}
+    </style>
+
+    <script id="ms7-workout-schedule-v2-script">
+    (function(){
+        'use strict';
+
+        const MS7_V2_GROUP_META = {
+            chest:{label:'Dada',hint:'Upper, middle & lower chest'},
+            back:{label:'Punggung',hint:'Lats, traps & ketebalan back'},
+            shoulders:{label:'Bahu',hint:'Front, side & rear delts'},
+            biceps:{label:'Bisep',hint:'Gerakan tarik & curl'},
+            triceps:{label:'Trisep',hint:'Gerakan tekan & ekstensi'},
+            abs_core:{label:'Perut & Core',hint:'Stabilitas dan kekuatan inti'},
+            legs:{label:'Kaki',hint:'Quads, hamstring, glutes & calves'},
+            recovery_mobility:{label:'Recovery',hint:'Mobilitas dan pemulihan'}
+        };
+
+        let ms7ManualExerciseOrder = [];
+        let ms7ManualSettings = {};
+        let ms7DraggingExercise = '';
+
+        function ms7BodyFigure(view){
+            const isBack = view === 'back';
+            return `<div class="ms7-body-card">
+                <small>${isBack ? 'Belakang' : 'Depan'}</small>
+                <svg class="ms7-body-svg" viewBox="0 0 160 310" role="img" aria-label="Peta otot tubuh ${isBack ? 'belakang' : 'depan'}">
+                    <circle class="ms7-body-base" cx="80" cy="28" r="19"/>
+                    <path class="ms7-body-base" d="M70 46 L90 46 L101 66 L112 80 L107 144 L98 176 L96 202 L105 288 L91 296 L80 216 L69 296 L55 288 L64 202 L62 176 L53 144 L48 80 L59 66 Z"/>
+                    <path class="ms7-body-base" d="M50 78 Q35 83 31 103 L24 164 L34 168 L48 119 Z"/>
+                    <path class="ms7-body-base" d="M110 78 Q125 83 129 103 L136 164 L126 168 L112 119 Z"/>
+                    ${isBack ? `
+                        <path class="ms7-muscle-region" data-group="back" tabindex="0" d="M59 69 Q80 57 101 69 L106 91 L98 133 Q90 146 80 152 Q70 146 62 133 L54 91 Z"/>
+                        <path class="ms7-muscle-region" data-group="shoulders" tabindex="0" d="M52 72 Q39 76 37 91 Q44 98 54 96 L61 78 Z"/>
+                        <path class="ms7-muscle-region" data-group="shoulders" tabindex="0" d="M108 72 Q121 76 123 91 Q116 98 106 96 L99 78 Z"/>
+                        <path class="ms7-muscle-region" data-group="triceps" tabindex="0" d="M37 94 Q31 111 31 132 L42 132 L49 99 Z"/>
+                        <path class="ms7-muscle-region" data-group="triceps" tabindex="0" d="M123 94 Q129 111 129 132 L118 132 L111 99 Z"/>
+                        <path class="ms7-muscle-region" data-group="legs" tabindex="0" d="M63 169 Q53 193 56 232 L62 286 L72 286 L79 205 L77 174 Z"/>
+                        <path class="ms7-muscle-region" data-group="legs" tabindex="0" d="M97 169 Q107 193 104 232 L98 286 L88 286 L81 205 L83 174 Z"/>
+                    ` : `
+                        <path class="ms7-muscle-region" data-group="chest" tabindex="0" d="M57 72 Q67 64 79 69 L78 94 Q64 96 55 88 Z"/>
+                        <path class="ms7-muscle-region" data-group="chest" tabindex="0" d="M103 72 Q93 64 81 69 L82 94 Q96 96 105 88 Z"/>
+                        <path class="ms7-muscle-region" data-group="shoulders" tabindex="0" d="M52 72 Q39 76 37 91 Q44 98 54 96 L61 78 Z"/>
+                        <path class="ms7-muscle-region" data-group="shoulders" tabindex="0" d="M108 72 Q121 76 123 91 Q116 98 106 96 L99 78 Z"/>
+                        <path class="ms7-muscle-region" data-group="biceps" tabindex="0" d="M37 94 Q31 111 31 132 L42 132 L49 99 Z"/>
+                        <path class="ms7-muscle-region" data-group="biceps" tabindex="0" d="M123 94 Q129 111 129 132 L118 132 L111 99 Z"/>
+                        <path class="ms7-muscle-region" data-group="abs_core" tabindex="0" d="M66 99 L94 99 L98 145 L88 164 L72 164 L62 145 Z"/>
+                        <path class="ms7-body-line" d="M80 100 L80 158 M65 118 L95 118 M64 137 L96 137"/>
+                        <path class="ms7-muscle-region" data-group="legs" tabindex="0" d="M63 169 Q53 193 56 232 L62 286 L72 286 L79 205 L77 174 Z"/>
+                        <path class="ms7-muscle-region" data-group="legs" tabindex="0" d="M97 169 Q107 193 104 232 L98 286 L88 286 L81 205 L83 174 Z"/>
+                    `}
+                    <path class="ms7-body-line" d="M69 48 Q80 55 91 48 M52 145 Q80 164 108 145"/>
+                </svg>
+            </div>`;
+        }
+
+        function ms7MuscleMapMarkup(context){
+            const choices = Object.entries(MS7_V2_GROUP_META).map(([key,meta]) =>
+                `<button type="button" class="ms7-muscle-choice" data-muscle-choice="${key}"><strong>${meta.label}</strong><span>${meta.hint}</span></button>`
+            ).join('');
+            return `<div class="ms7-muscle-explorer" data-map-context="${context}">
+                <div class="ms7-muscle-head"><div><div class="ms7-v2-kicker">MS7 Muscle Navigator</div><h4>Pilih bagian tubuh yang ingin dilatih</h4><p>Klik area tubuh atau tombol kelompok otot. Area merah menunjukkan fokus yang sedang aktif.</p></div><span class="pill-badge">Visual Muscle Map</span></div>
+                <div class="ms7-muscle-layout"><div class="ms7-body-pair">${ms7BodyFigure('front')}${ms7BodyFigure('back')}</div><div class="ms7-muscle-menu">${choices}<div class="ms7-muscle-actions"><button type="button" class="btn-secondary" data-muscle-all>🌟 Semua Gerakan</button><button type="button" class="btn-secondary" data-muscle-clear>Hapus Fokus</button></div></div></div>
+            </div>`;
+        }
+
+        function ms7DefaultSettings(){
+            const bio = loadJSON(APP_KEYS.BIO,{}) || {};
+            if(bio.level === 'Advanced') return {sets:4,repsMin:6,repsMax:8,restSeconds:120,rir:1};
+            if(bio.level === 'Intermediate') return {sets:4,repsMin:8,repsMax:10,restSeconds:90,rir:2};
+            return {sets:3,repsMin:10,repsMax:12,restSeconds:60,rir:2};
+        }
+
+        function ms7GetDayPlan(day){
+            const bio = loadJSON(APP_KEYS.BIO,{}) || {};
+            const program = PROGRAM_PRESETS[bio.level || 'Beginner'] || PROGRAM_PRESETS.Beginner;
+            const custom = loadJSON(APP_KEYS.CUSTOM_SCHED,{}) || {};
+            return custom[day] || program.days[day] || {ex:[]};
+        }
+
+        function ms7EnsureBuilderState(){
+            const selected = Array.from(manualSelectedExercises);
+            ms7ManualExerciseOrder = ms7ManualExerciseOrder.filter(name => manualSelectedExercises.has(name));
+            selected.forEach(name => { if(!ms7ManualExerciseOrder.includes(name)) ms7ManualExerciseOrder.push(name); });
+            Object.keys(ms7ManualSettings).forEach(name => { if(!manualSelectedExercises.has(name)) delete ms7ManualSettings[name]; });
+            ms7ManualExerciseOrder.forEach(name => {
+                ms7ManualSettings[name] = {...ms7DefaultSettings(),...(ms7ManualSettings[name] || {})};
+            });
+        }
+
+        function ms7LoadBuilderForDay(selectedExercises){
+            const day = document.getElementById('select-sched-day')?.value || 'Senin';
+            const plan = ms7GetDayPlan(day);
+            ms7ManualExerciseOrder = Array.isArray(selectedExercises) ? selectedExercises.slice() : (plan.ex || []).slice();
+            ms7ManualSettings = {};
+            ms7ManualExerciseOrder.forEach(name => {
+                ms7ManualSettings[name] = {...ms7DefaultSettings(),...(plan.exerciseSettings?.[name] || {})};
+            });
+            ms7EnsureBuilderState();
+        }
+
+        function ms7SyncSettingsFromDOM(){
+            document.querySelectorAll('#ms7-selected-builder [data-exercise-config]').forEach(card => {
+                const name = card.dataset.exerciseConfig;
+                if(!name) return;
+                const get = key => Number(card.querySelector(`[data-setting="${key}"]`)?.value);
+                ms7ManualSettings[name] = {
+                    sets:Math.max(1,Math.min(10,get('sets') || 3)),
+                    repsMin:Math.max(1,Math.min(100,get('repsMin') || 8)),
+                    repsMax:Math.max(1,Math.min(100,get('repsMax') || 12)),
+                    restSeconds:Math.max(15,Math.min(300,get('restSeconds') || 60)),
+                    rir:Math.max(0,Math.min(5,get('rir') || 0))
+                };
+                if(ms7ManualSettings[name].repsMax < ms7ManualSettings[name].repsMin) ms7ManualSettings[name].repsMax = ms7ManualSettings[name].repsMin;
+            });
+        }
+
+        function ms7RenderBuilder(){
+            const box = document.getElementById('ms7-selected-builder');
+            if(!box) return;
+            ms7EnsureBuilderState();
+            const totalSets = ms7ManualExerciseOrder.reduce((sum,name)=>sum+(Number(ms7ManualSettings[name]?.sets)||0),0);
+            const estMinutes = Math.max(0,Math.round(ms7ManualExerciseOrder.reduce((sum,name)=>{
+                const cfg=ms7ManualSettings[name]||ms7DefaultSettings();
+                return sum + cfg.sets * (45 + cfg.restSeconds);
+            },0)/60));
+            box.innerHTML = `<div class="ms7-builder-head"><div><h5>⚙️ Atur Detail Setiap Gerakan</h5><p>Susun urutan lalu tentukan set, repetisi, rest, dan target RIR.</p></div><div class="ms7-builder-summary"><span>${ms7ManualExerciseOrder.length} gerakan</span><span>${totalSets} working set</span><span>± ${estMinutes} menit</span></div></div>
+                <div class="ms7-builder-list">${ms7ManualExerciseOrder.length ? ms7ManualExerciseOrder.map((name,index)=>{
+                    const ex=findExerciseInDB(name); const cfg=ms7ManualSettings[name]||ms7DefaultSettings();
+                    return `<div class="ms7-builder-card" data-exercise-config="${escHtml(name)}" data-index="${index}">
+                        <div class="ms7-drag-handle" draggable="true" title="Tarik untuk mengubah urutan">⋮⋮</div>
+                        <div class="ms7-builder-thumb"><img src="${escHtml(ex.src||'')}" alt="" loading="lazy" onerror="this.style.display='none'"></div>
+                        <div class="ms7-builder-name"><strong>${index+1}. ${escHtml(name)}</strong><span>${escHtml(ex.category)} • ${escHtml(ex.equipment)}</span></div>
+                        <div class="ms7-builder-field sets"><label>Set</label><input data-setting="sets" type="number" min="1" max="10" value="${cfg.sets}"></div>
+                        <div class="ms7-builder-field reps-min"><label>Reps min</label><input data-setting="repsMin" type="number" min="1" max="100" value="${cfg.repsMin}"></div>
+                        <div class="ms7-builder-field reps-max"><label>Reps max</label><input data-setting="repsMax" type="number" min="1" max="100" value="${cfg.repsMax}"></div>
+                        <div class="ms7-builder-field rest"><label>Rest (dtk)</label><input data-setting="restSeconds" type="number" min="15" max="300" step="5" value="${cfg.restSeconds}"></div>
+                        <div class="ms7-builder-field rir"><label>RIR</label><input data-setting="rir" type="number" min="0" max="5" value="${cfg.rir}"></div>
+                        <div class="ms7-builder-actions"><button type="button" data-move="up" title="Naik">↑</button><button type="button" data-move="down" title="Turun">↓</button><button type="button" class="remove" data-remove title="Hapus">×</button></div>
+                    </div>`;
+                }).join('') : '<div class="ms7-builder-empty">Pilih minimal satu gerakan dari database untuk mulai menyusun sesi.</div>'}</div>`;
+        }
+
+        function ms7DecoratePicker(){
+            document.querySelectorAll('#manual-exercise-picker .manual-exercise-option').forEach(label => {
+                const input=label.querySelector('.manual-exercise-cb');
+                if(!input || label.querySelector('.ms7-picker-thumb')) return;
+                const ex=findExerciseInDB(input.value);
+                const media=document.createElement('div');
+                media.className='ms7-picker-thumb';
+                media.innerHTML=`<img src="${escHtml(ex.src||'')}" alt="" loading="lazy">`;
+                media.querySelector('img').addEventListener('error',e=>e.currentTarget.style.display='none');
+                input.insertAdjacentElement('afterend',media);
+            });
+        }
+
+        function ms7SyncMapState(){
+            document.querySelectorAll('[data-map-context]').forEach(map => {
+                const context=map.dataset.mapContext;
+                const active=context==='database' ? new Set(currentSelectedCategory==='all'?[]:[currentSelectedCategory]) : new Set(manualSelectedGroups);
+                map.querySelectorAll('[data-group]').forEach(el=>el.classList.toggle('active',active.has(el.dataset.group)));
+                map.querySelectorAll('[data-muscle-choice]').forEach(el=>el.classList.toggle('active',active.has(el.dataset.muscleChoice)));
+            });
+        }
+
+        function ms7ApplyMuscleChoice(context,group,forceClear=false){
+            if(context==='database'){
+                selectCategoryChip(forceClear ? 'all' : group);
+            }else{
+                if(forceClear) manualSelectedGroups.clear();
+                else if(manualSelectedGroups.has(group)) manualSelectedGroups.delete(group);
+                else manualSelectedGroups.add(group);
+                const filter=document.getElementById('manual-exercise-type-filter');
+                if(filter) filter.value='all';
+                renderManualExercisePicker();
+            }
+            ms7SyncMapState();
+        }
+
+        function ms7AnnotateScheduleCards(){
+            const days=['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'];
+            document.querySelectorAll('#weekly-schedule-grid .schedule-day-card').forEach((card,index)=>{
+                card.querySelector('.ms7-day-config-summary')?.remove();
+                const plan=ms7GetDayPlan(days[index]);
+                if(!plan?.ex?.length) return;
+                const configs=plan.exerciseSettings||{};
+                const defaultCfg=ms7DefaultSettings();
+                const totalSets=plan.ex.reduce((s,n)=>s+(Number(configs[n]?.sets)||defaultCfg.sets),0);
+                const rests=plan.ex.map(n=>Number(configs[n]?.restSeconds)||defaultCfg.restSeconds);
+                const summary=document.createElement('div');
+                summary.className='ms7-day-config-summary';
+                summary.innerHTML=`<span>${totalSets} total set</span><span>Rest ${Math.min(...rests)}–${Math.max(...rests)} dtk</span><span>Detail per gerakan aktif</span>`;
+                const footer=card.lastElementChild;
+                if(footer) card.insertBefore(summary,footer);
+            });
+        }
+
+        const originalSetManualSelectionState=window.setManualSelectionState;
+        if(typeof originalSetManualSelectionState==='function') window.setManualSelectionState=function(selectedExercises,selectedGroups){
+            originalSetManualSelectionState(selectedExercises,selectedGroups);
+            ms7LoadBuilderForDay(selectedExercises||[]);
+        };
+
+        const originalUpdateManualSelectionSummary=window.updateManualSelectionSummary;
+        if(typeof originalUpdateManualSelectionSummary==='function') window.updateManualSelectionSummary=function(){
+            originalUpdateManualSelectionSummary();
+            ms7EnsureBuilderState();
+            ms7RenderBuilder();
+            ms7SyncMapState();
+        };
+
+        const originalRenderManualExercisePicker=window.renderManualExercisePicker;
+        if(typeof originalRenderManualExercisePicker==='function') window.renderManualExercisePicker=function(selectedNames){
+            originalRenderManualExercisePicker(selectedNames);
+            ms7DecoratePicker();
+            ms7RenderBuilder();
+            ms7SyncMapState();
+        };
+
+        window.getSelectedManualExercises=function(){
+            ms7EnsureBuilderState();
+            return ms7ManualExerciseOrder.slice();
+        };
+
+        const originalSelectCategoryChip=window.selectCategoryChip;
+        if(typeof originalSelectCategoryChip==='function') window.selectCategoryChip=function(cat){
+            originalSelectCategoryChip(cat);
+            ms7SyncMapState();
+        };
+
+        const originalRenderSchedule=window.renderSchedule;
+        if(typeof originalRenderSchedule==='function') window.renderSchedule=function(bio){
+            originalRenderSchedule(bio);
+            ms7AnnotateScheduleCards();
+            ms7RenderBuilder();
+            ms7SyncMapState();
+        };
+
+        function ms7AttachSettingsToActiveSession(plan){
+            if(!activeWorkoutSession?.running) return;
+            activeWorkoutSession.exerciseSettings=JSON.parse(JSON.stringify(plan?.exerciseSettings||{}));
+            const defaults=ms7DefaultSettings();
+            activeWorkoutSession.playlist.forEach(name=>{
+                activeWorkoutSession.exerciseSettings[name]={...defaults,...(activeWorkoutSession.exerciseSettings[name]||{})};
+            });
+            saveActiveWorkoutState();
+            renderLiveWorkoutHUD();
+        }
+
+        const originalStartWorkout=window.startWorkoutSessionFromBeginning;
+        if(typeof originalStartWorkout==='function') window.startWorkoutSessionFromBeginning=function(){
+            originalStartWorkout();
+            const bio=loadJSON(APP_KEYS.BIO,null); const result=bio?getTodaySchedule(bio):null;
+            if(result?.plan) ms7AttachSettingsToActiveSession(result.plan);
+        };
+
+        const originalPlayDay=window.playSelectedDaySchedule;
+        if(typeof originalPlayDay==='function') window.playSelectedDaySchedule=function(day){
+            originalPlayDay(day);
+            if(activeWorkoutSession?.running) ms7AttachSettingsToActiveSession(ms7GetDayPlan(day));
+        };
+
+        const originalStartSingle=window.startSingleExerciseNow;
+        if(typeof originalStartSingle==='function') window.startSingleExerciseNow=function(){
+            const selected=currentlyViewedExercise;
+            originalStartSingle();
+            if(selected && activeWorkoutSession?.running) ms7AttachSettingsToActiveSession({exerciseSettings:{[selected.name]:ms7DefaultSettings()}});
+        };
+
+        document.addEventListener('click',event=>{
+            const map=event.target.closest('[data-map-context]');
+            if(map){
+                const choice=event.target.closest('[data-group],[data-muscle-choice]');
+                if(choice){
+                    const group=choice.dataset.group||choice.dataset.muscleChoice;
+                    if(group) ms7ApplyMuscleChoice(map.dataset.mapContext,group);
+                    return;
+                }
+                if(event.target.closest('[data-muscle-all],[data-muscle-clear]')){
+                    ms7ApplyMuscleChoice(map.dataset.mapContext,'',true);
+                    return;
+                }
+            }
+
+            const builder=event.target.closest('#ms7-selected-builder');
+            if(!builder) return;
+            const card=event.target.closest('[data-exercise-config]');
+            if(!card) return;
+            const name=card.dataset.exerciseConfig;
+            if(event.target.closest('[data-remove]')){
+                manualSelectedExercises.delete(name);
+                ms7ManualExerciseOrder=ms7ManualExerciseOrder.filter(n=>n!==name);
+                delete ms7ManualSettings[name];
+                renderManualExercisePicker();
+                return;
+            }
+            const move=event.target.closest('[data-move]')?.dataset.move;
+            if(move){
+                ms7SyncSettingsFromDOM();
+                const index=ms7ManualExerciseOrder.indexOf(name);
+                const target=move==='up'?index-1:index+1;
+                if(index>=0&&target>=0&&target<ms7ManualExerciseOrder.length){
+                    [ms7ManualExerciseOrder[index],ms7ManualExerciseOrder[target]]=[ms7ManualExerciseOrder[target],ms7ManualExerciseOrder[index]];
+                    ms7RenderBuilder();
+                }
+            }
+        });
+
+        document.addEventListener('input',event=>{
+            if(event.target.closest('#ms7-selected-builder')&&event.target.matches('[data-setting]')) ms7SyncSettingsFromDOM();
+        });
+
+        document.addEventListener('dragstart',event=>{
+            const handle=event.target.closest('.ms7-drag-handle');
+            const card=handle?.closest('[data-exercise-config]');
+            if(!card) return;
+            ms7SyncSettingsFromDOM();
+            ms7DraggingExercise=card.dataset.exerciseConfig;
+            event.dataTransfer.effectAllowed='move';
+            event.dataTransfer.setData('text/plain',ms7DraggingExercise);
+        });
+        document.addEventListener('dragover',event=>{
+            const card=event.target.closest('#ms7-selected-builder [data-exercise-config]');
+            if(!card||!ms7DraggingExercise) return;
+            event.preventDefault(); card.classList.add('drag-over');
+        });
+        document.addEventListener('dragleave',event=>event.target.closest('[data-exercise-config]')?.classList.remove('drag-over'));
+        document.addEventListener('drop',event=>{
+            const card=event.target.closest('#ms7-selected-builder [data-exercise-config]');
+            if(!card||!ms7DraggingExercise) return;
+            event.preventDefault(); card.classList.remove('drag-over');
+            const from=ms7ManualExerciseOrder.indexOf(ms7DraggingExercise),to=ms7ManualExerciseOrder.indexOf(card.dataset.exerciseConfig);
+            if(from>=0&&to>=0&&from!==to){
+                const [moved]=ms7ManualExerciseOrder.splice(from,1); ms7ManualExerciseOrder.splice(to,0,moved); ms7RenderBuilder();
+            }
+            ms7DraggingExercise='';
+        });
+        document.addEventListener('dragend',()=>{ms7DraggingExercise='';document.querySelectorAll('.drag-over').forEach(x=>x.classList.remove('drag-over'));});
+
+        document.addEventListener('keydown',event=>{
+            if((event.key==='Enter'||event.key===' ')&&event.target.matches('.ms7-muscle-region')){
+                event.preventDefault(); event.target.dispatchEvent(new MouseEvent('click',{bubbles:true}));
+            }
+        });
+
+        document.addEventListener('submit',event=>{
+            if(event.target.id!=='form-manual-sched') return;
+            ms7SyncSettingsFromDOM(); ms7EnsureBuilderState();
+            const day=document.getElementById('select-sched-day')?.value;
+            const type=document.getElementById('select-day-type')?.value;
+            const order=ms7ManualExerciseOrder.slice();
+            const settings=JSON.parse(JSON.stringify(ms7ManualSettings));
+            queueMicrotask(()=>{
+                if(!day||type==='rest'||!order.length) return;
+                const custom=loadJSON(APP_KEYS.CUSTOM_SCHED,{})||{};
+                if(!custom[day]) return;
+                custom[day].ex=order;
+                custom[day].exerciseSettings={};
+                order.forEach(name=>custom[day].exerciseSettings[name]={...ms7DefaultSettings(),...(settings[name]||{})});
+                saveJSON(APP_KEYS.CUSTOM_SCHED,custom);
+                renderSchedule(loadJSON(APP_KEYS.BIO,null));
+                showToast('⚙️ Detail set, reps, rest, dan RIR ikut tersimpan.','success');
+            });
+        },true);
+
+        document.addEventListener('DOMContentLoaded',()=>{
+            const dbHeader=document.querySelector('#database .card > .card-header');
+            if(dbHeader&&!document.querySelector('[data-map-context="database"]')) dbHeader.insertAdjacentHTML('afterend',ms7MuscleMapMarkup('database'));
+            const manualBox=document.getElementById('manual-cats-box');
+            if(manualBox&&!document.querySelector('[data-map-context="schedule"]')) manualBox.insertAdjacentHTML('afterbegin',ms7MuscleMapMarkup('schedule'));
+            const count=document.getElementById('manual-exercise-count');
+            if(count&&!document.getElementById('ms7-selected-builder')) count.insertAdjacentHTML('afterend','<div id="ms7-selected-builder" class="ms7-selected-builder"></div>');
+            const initialDay=document.getElementById('select-sched-day')?.value||'Senin';
+            const initialPlan=ms7GetDayPlan(initialDay);
+            const initialType=document.getElementById('select-day-type');
+            if(initialType){
+                initialType.value=!initialPlan.ex?.length?'rest':(/pemulihan|recovery|mobilitas/i.test(initialPlan.focus||'')?'recovery':'workout');
+                toggleManualDayFields();
+            }
+            document.getElementById('select-sched-day')?.addEventListener('change',()=>setTimeout(()=>{
+                const day=document.getElementById('select-sched-day').value; const plan=ms7GetDayPlan(day);
+                const dayType=document.getElementById('select-day-type');
+                if(dayType){
+                    dayType.value=!plan.ex?.length?'rest':(/pemulihan|recovery|mobilitas/i.test(plan.focus||'')?'recovery':'workout');
+                    toggleManualDayFields();
+                }
+                setManualSelectionState(plan.ex||[],plan.focusGroups||[]); renderManualExercisePicker();
+            },0));
+            ms7DecoratePicker(); ms7RenderBuilder(); ms7AnnotateScheduleCards(); ms7SyncMapState();
+        });
+    })();
     </script>
 </body>
 
